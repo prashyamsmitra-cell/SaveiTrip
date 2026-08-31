@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getGoogleStatus, login } from "./authApi";
+import { getGoogleStatus, login, loginAsDemo } from "./authApi";
 import { useAuth } from "./AuthContext";
 
 export default function LoginPage() {
@@ -51,6 +51,31 @@ export default function LoginPage() {
           {loading ? "Signing in..." : "Log in"}
         </button>
       </form>
+      <div className="mt-6 flex items-center gap-3 text-ink-faint">
+        <span className="h-px flex-1 bg-line" />
+        <span className="text-xs uppercase tracking-wide">or</span>
+        <span className="h-px flex-1 bg-line" />
+      </div>
+      <button
+        type="button"
+        disabled={loading}
+        onClick={async () => {
+          setError("");
+          setLoading(true);
+          try {
+            const session = await loginAsDemo();
+            setSession(session);
+            navigate("/dashboard");
+          } catch (error) {
+            setError(error instanceof Error ? error.message : "Demo login failed. Please try again.");
+          } finally {
+            setLoading(false);
+          }
+        }}
+        className="mt-6 w-full rounded-sm border border-accent-green bg-accent-green-soft px-5 py-3 text-sm font-medium text-accent-green transition hover:-translate-y-0.5 disabled:opacity-60"
+      >
+        Explore with a demo account
+      </button>
       <p className="mt-6 text-center text-sm text-ink-soft">
         New to SaveiTrip? <Link to="/signup" className="text-ink underline underline-offset-4">Create an account</Link>
       </p>

@@ -70,6 +70,12 @@ export async function login(input: { email: string; password: string }) {
   });
 }
 
+export async function loginAsDemo() {
+  return request<AuthResponse>("/api/auth/demo", {
+    method: "POST"
+  });
+}
+
 export async function fetchMe(token: string) {
   return request<{ user: User }>("/api/auth/me", {
     headers: { Authorization: `Bearer ${token}` }

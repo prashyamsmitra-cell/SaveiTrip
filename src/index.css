@@ -72,3 +72,47 @@ textarea:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---- Scroll reveal (driven by IntersectionObserver, see useReveal) ---- */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal[data-dir="left"] { transform: translateX(-28px); }
+.reveal[data-dir="right"] { transform: translateX(28px); }
+.reveal[data-dir="scale"] { transform: scale(0.96); opacity: 0; }
+.reveal[data-dir="scale"].is-visible { transform: scale(1); }
+.reveal.is-visible[data-dir="left"],
+.reveal.is-visible[data-dir="right"] { transform: translateX(0); }
+
+/* ---- Hover lift cards ---- */
+.lift-card {
+  transition:
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+.lift-card:hover {
+  transform: translateY(-6px);
+}
+
+/* ---- Fading marquee (infinite, single strip) ---- */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 32s linear infinite;
+}
+.marquee-track:hover { animation-play-state: paused; }
