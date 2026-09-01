@@ -1,14 +1,14 @@
-# SAVEITRIP — Frontend Prototype
+# SAVEITRIP — Frontend
 
-Premium AI travel intelligence platform for India. This is a **frontend-only prototype**:
-landing page → demo login/signup → logged-in dashboard. No backend, no real AI, no real auth.
+Premium AI travel intelligence platform for India. This is the React frontend for the
+SaveiTrip monorepo. It talks to the Express backend in `../backend` over `/api`.
 
 ## Stack
 
-- React + TypeScript
+- React 19 + TypeScript
 - Vite
-- Tailwind CSS v4
-- react-router-dom (for the 4 routes)
+- Tailwind CSS v4 (`@tailwindcss/vite`)
+- react-router-dom
 
 ## Getting started
 
@@ -17,36 +17,53 @@ npm install
 npm run dev
 ```
 
-Then open the printed local URL (typically `http://localhost:5173`).
+Then open the printed local URL (typically `http://localhost:5173`). The Vite dev server
+proxies `/api` requests to `http://localhost:4000`, so the backend must be running too
+(see `../backend`).
+
+## Scripts
+
+- `npm run dev` — start the Vite dev server
+- `npm run build` — type-check (`tsc -b`) then produce a production bundle
+- `npm run preview` — preview the production build
 
 ## Routes
 
-- `/` — landing page (hero, story sections, destination discovery, pricing)
-- `/login` — email/password (any non-empty values work) or "Try Demo Account"
-- `/signup` — creates a mock local account
-- `/dashboard` — logged-in home screen (redirects to `/login` if not signed in)
+- `/` — landing page
+- `/login` — email/password login or "Try Demo Account"
+- `/signup` — create an account
+- `/auth/google/callback` — Google OAuth redirect handler
+- `/dashboard` — logged-in home screen (auth required)
+- `/trips/new` — trip consultation (auth required)
+- `/comparison` — deal comparison search (auth required)
+- `/prediction` — prediction (auth required, placeholder)
+- `/sos` — emergency SOS research (auth required, placeholder)
+- `/profile` — user profile (auth required)
+- `/services` — redirects to `/dashboard`
+- `*` — public 404 page
 
-## How auth works
-
-There is no backend. Signing in (via the demo button, or the login/signup forms) simply
-writes a small user object to `localStorage` under the key `saveitrip_user`. Logging out clears
-it. See `src/lib/auth.ts`.
+Unknown routes show a public 404 (no auth required). All other protected routes redirect
+to `/login` when signed out.
 
 ## Project structure
 
 ```
 src/
-  App.tsx            route definitions
-  main.tsx            entry point
-  index.css          Tailwind + design tokens (colors, fonts)
-  data.ts             mock destinations, pricing, demo user, AI copy
-  lib/auth.ts          localStorage auth helpers
-  components/         Navbar, OutlookBadge, Reveal (scroll animation)
-  pages/               Landing, Login, Signup, Dashboard
+  main.tsx                 entry point
+  App.tsx                  route definitions
+  index.css                Tailwind + design tokens (colors, fonts, animations)
+  auth/                    auth API client, AuthContext, login/signup, ProtectedRoute
+  shared/                  AppShell (authenticated layout), ServiceDetail, services
+  dashboard/               DashboardPage
+  comparison/              ComparisonPage + comparisonApi
+  prediction/              PredictionPage
+  sos/                     SosPage
+  trips/                   TripConsultationPage
+  profile/                 ProfilePage
+  hooks/                   useReveal (scroll-reveal hook)
 ```
 
 ## Notes
 
-- Destination imagery is hotlinked from Unsplash (free-to-use license).
-- This prototype intentionally does not implement the AI intelligence engine, payments, or
-  real authentication — see the product brief for what's in scope.
+- Authentication is handled by the backend (JWT, stored by `AuthContext`); see `../backend`.
+- Some modules (prediction, SOS, trips) are functional shells awaiting backend work.

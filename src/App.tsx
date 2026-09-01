@@ -9,19 +9,21 @@ import DashboardPage from "./dashboard/DashboardPage";
 import LandingPage from "./LandingPage";
 import PredictionPage from "./prediction/PredictionPage";
 import ProfilePage from "./profile/ProfilePage";
-import AppShell from "./shared/AppShell";
 import SosPage from "./sos/SosPage";
 import TripConsultationPage from "./trips/TripConsultationPage";
 
 function NotFound() {
   return (
-    <AppShell>
+    <div className="grid min-h-screen place-items-center bg-canvas px-6 text-center">
       <section className="max-w-2xl">
         <p className="text-sm text-ink-faint">404</p>
         <h1 className="font-display mt-3 text-5xl">This route is not on the itinerary.</h1>
-        <p className="mt-5 text-ink-soft">Head back to the dashboard to continue exploring the SaveiTrip product shell.</p>
+        <p className="mt-5 text-ink-soft">The page you're looking for doesn't exist. Head back to explore SaveiTrip.</p>
+        <a href="/" className="mt-8 inline-block rounded-full bg-ink px-6 py-3 text-sm text-canvas">
+          Go home
+        </a>
       </section>
-    </AppShell>
+    </div>
   );
 }
 
@@ -41,7 +43,7 @@ export default function App() {
           <Route path="/sos" element={<ProtectedRoute><SosPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/services" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
