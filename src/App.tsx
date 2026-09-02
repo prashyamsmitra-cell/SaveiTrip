@@ -11,15 +11,23 @@ import PredictionPage from "./prediction/PredictionPage";
 import ProfilePage from "./profile/ProfilePage";
 import SosPage from "./sos/SosPage";
 import TripConsultationPage from "./trips/TripConsultationPage";
+import { Brand } from "./shared/ui";
+import { Icon } from "./shared/Icon";
 
 function NotFound() {
   return (
     <div className="grid min-h-screen place-items-center bg-canvas px-6 text-center">
-      <section className="max-w-2xl">
-        <p className="text-sm text-ink-faint">404</p>
-        <h1 className="font-display mt-3 text-5xl">This route is not on the itinerary.</h1>
-        <p className="mt-5 text-ink-soft">The page you're looking for doesn't exist. Head back to explore SaveiTrip.</p>
-        <a href="/" className="mt-8 inline-block rounded-full bg-ink px-6 py-3 text-sm text-canvas">
+      <section className="max-w-2xl page-fade">
+        <Brand className="mx-auto justify-center text-xl" />
+        <p className="kicker mt-10">404</p>
+        <h1 className="font-display mt-4 text-5xl leading-tight">
+          This route is not on the itinerary.
+        </h1>
+        <p className="mx-auto mt-5 max-w-md leading-7 text-ink-soft">
+          The page you're looking for doesn't exist. Head back to explore SaveiTrip.
+        </p>
+        <a href="/" className="btn btn-primary mt-8">
+          <Icon name="arrow-left" className="h-4 w-4" />
           Go home
         </a>
       </section>

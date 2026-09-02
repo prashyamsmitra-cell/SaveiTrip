@@ -1,35 +1,54 @@
 import AppShell from "../shared/AppShell";
+import { Icon } from "../shared/Icon";
 
-const fields = ["Destination", "Travel dates", "Number of travelers", "Approximate budget", "Travel type", "Interests and preferences"];
+const fields = [
+  { label: "Destination", placeholder: "e.g. Ladakh, Kerala, Spiti" },
+  { label: "Travel dates", placeholder: "e.g. October 15–22, 2026" },
+  { label: "Number of travelers", placeholder: "2" },
+  { label: "Approximate budget", placeholder: "e.g. ₹40,000–₹60,000" },
+  { label: "Travel type", placeholder: "e.g. solo, couple, family" },
+  { label: "Interests and preferences", placeholder: "Food, mountains, heritage walks, slow travel..." }
+];
 
 export default function TripConsultationPage() {
   return (
     <AppShell>
-      <section className="grid gap-8 md:grid-cols-[0.9fr_1.1fr]">
+      <section className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
         <div>
-          <p className="text-sm text-ink-faint">Trip consultation</p>
-          <h1 className="font-display mt-3 text-4xl leading-tight md:text-5xl">Shape the trip brief now. Intelligence comes later.</h1>
-          <p className="mt-5 max-w-xl text-ink-soft">
+          <p className="kicker">Trip consultation</p>
+          <h1 className="font-display mt-3 text-4xl leading-[1.05] md:text-5xl">
+            Shape the trip brief now. Intelligence comes later.
+          </h1>
+          <p className="mt-5 max-w-xl leading-7 text-ink-soft">
             This form is the future intake surface for trip planning. It does not analyze, recommend, price, or call an ML service yet.
           </p>
-          <div className="mt-8 rounded-sm bg-accent-amber-soft p-5 text-sm text-accent-amber">
-            Trip Intelligence is being prepared.
+          <div className="mt-8 flex items-start gap-3 rounded-lg border border-accent-amber/25 bg-accent-amber-soft px-5 py-4">
+            <Icon name="clock" className="mt-0.5 h-4 w-4 shrink-0 text-accent-amber" />
+            <div>
+              <p className="text-sm font-medium text-accent-amber">Trip Intelligence is being prepared.</p>
+              <p className="mt-1 text-xs text-accent-amber/70">This form captures your preferences for future processing.</p>
+            </div>
           </div>
         </div>
-        <form className="rounded-sm bg-surface p-6 shadow-[0_24px_70px_-45px_rgba(32,29,24,0.35)] md:p-8">
-          <div className="grid gap-4 md:grid-cols-2">
-            {fields.map((label) => (
-              <label key={label} className={label.includes("Interests") ? "block md:col-span-2" : "block"}>
-                <span className="text-sm text-ink-soft">{label}</span>
+
+        <form className="card p-6 md:p-8" onSubmit={(e) => e.preventDefault()}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {fields.map(({ label, placeholder }) => (
+              <label key={label} className={label.includes("Interests") ? "block sm:col-span-2" : "block"}>
+                <span className="field-label">{label}</span>
                 {label.includes("Interests") ? (
-                  <textarea className="mt-2 min-h-28 w-full rounded-sm border border-line bg-canvas px-4 py-3 outline-none focus:border-ink" placeholder="Food, mountains, heritage walks, slow travel..." />
+                  <textarea
+                    className="input min-h-28"
+                    placeholder={placeholder}
+                  />
                 ) : (
-                  <input className="mt-2 w-full rounded-sm border border-line bg-canvas px-4 py-3 outline-none focus:border-ink" placeholder={label} />
+                  <input className="input" placeholder={placeholder} />
                 )}
               </label>
             ))}
           </div>
-          <button type="button" className="mt-6 w-full rounded-sm bg-ink px-5 py-3 text-sm font-medium text-canvas">
+          <button type="button" className="btn btn-primary mt-6 w-full justify-center opacity-75">
+            <Icon name="lock" className="h-4 w-4" />
             Trip Intelligence is being prepared
           </button>
         </form>

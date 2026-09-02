@@ -1,7 +1,20 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { services } from "./shared/services";
+import { services, statusTone } from "./shared/services";
+import { Brand } from "./shared/ui";
+import { Icon, type IconName } from "./shared/Icon";
 import { useReveal } from "./hooks/useReveal";
+
+function useScrollBelow(threshold = 20) {
+  const [below, setBelow] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setBelow(window.scrollY > threshold);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [threshold]);
+  return below;
+}
 
 function Reveal({
   children,
@@ -29,26 +42,27 @@ function Reveal({
 }
 
 const navLinks = [
-  { label: "Platform", href: "#platform" },
+  { label: "Destinations", href: "#destinations" },
   { label: "Services", href: "#services" },
-  { label: "How it works", href: "#how" },
+  { label: "The journey", href: "#how" },
   { label: "Principles", href: "#principles" }
 ];
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-canvas text-ink">
-      <LedgerLine />
-
+      <a href="#main-content" className="skip-link">
+        Skip to content
+      </a>
       <Header />
 
-      <Hero />
-
-      <main>
+      <main id="main-content">
+        <Hero />
         <TrustStrip />
+        <DestinationsSection />
         <PlatformSection />
         <ServicesSection />
-        <ShowcaseBand />
+        <ExperienceBand />
         <HowItWorks />
         <PrinciplesSection />
         <FinalCta />
@@ -59,37 +73,77 @@ export default function LandingPage() {
   );
 }
 
-function LedgerLine() {
-  return <div className="h-px w-full bg-line/60" aria-hidden="true" />;
-}
+/* ───────────────────────── Header ───────────────────────── */
 
 function Header() {
+  const scrolled = useScrollBelow(20);
   return (
-    <header className="sticky top-0 z-40 border-b border-line/70 bg-canvas/90 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
-        <Link to="/" className="font-display text-xl">
-          Savei<span className="text-accent-green">Trip</span>
+    <header
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+        scrolled
+          ? "border-b border-line/70 bg-canvas/92 shadow-sm backdrop-blur-md"
+          : "border-b border-transparent bg-transparent"
+      }`}
+    >
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 md:px-8">
+        <Link to="/" aria-label="SaveiTrip home">
+          <span
+            className={`inline-flex items-center gap-2.5 font-display text-xl tracking-tight transition-colors ${
+              scrolled ? "text-ink" : "text-canvas"
+            }`}
+          >
+            <span
+              className={`grid h-8 w-8 place-items-center rounded-lg transition-colors ${
+                scrolled
+                  ? "bg-accent-green text-canvas"
+                  : "bg-canvas/15 text-canvas ring-1 ring-canvas/40 backdrop-blur-md"
+              }`}
+            >
+              <Icon name="compass" className="h-4 w-4" />
+            </span>
+            <span>
+              Savei<span className={scrolled ? "text-accent-green" : "text-amber-200"}>Trip</span>
+            </span>
+          </span>
         </Link>
-        <nav className="hidden items-center gap-7 md:flex">
+
+        <nav className="hidden items-center gap-8 md:flex">
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="text-sm text-ink-soft transition-colors hover:text-ink"
+              className={`text-sm font-medium transition-colors ${
+                scrolled
+                  ? "text-ink-soft hover:text-ink"
+                  : "text-canvas/85 hover:text-canvas [text-shadow:0_1px_12px_rgba(0,0,0,0.45)]"
+              }`}
             >
               {link.label}
             </a>
           ))}
         </nav>
+
         <div className="flex items-center gap-3">
-          <Link to="/login" className="text-sm text-ink-soft transition-colors hover:text-ink">
+          <Link
+            to="/login"
+            className={`hidden rounded-full px-4 py-2 text-sm font-medium transition sm:inline-flex ${
+              scrolled
+                ? "text-ink-soft hover:bg-surface hover:text-ink"
+                : "text-canvas/90 ring-1 ring-canvas/40 backdrop-blur-md hover:bg-canvas/10 [text-shadow:0_1px_12px_rgba(0,0,0,0.45)]"
+            }`}
+          >
             Log in
           </Link>
           <Link
             to="/signup"
-            className="rounded-sm bg-ink px-4 py-2 text-sm font-medium text-canvas transition hover:-translate-y-0.5"
+            className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition hover:-translate-y-0.5 ${
+              scrolled
+                ? "bg-ink text-canvas hover:bg-ink/90 shadow-md shadow-ink/20"
+                : "bg-canvas text-ink shadow-lg shadow-ink/30 hover:bg-white"
+            }`}
           >
-            Get started
+            Explore
+            <Icon name="arrow-right" className="h-3.5 w-3.5" />
           </Link>
         </div>
       </div>
@@ -97,89 +151,99 @@ function Header() {
   );
 }
 
+/* ───────────────────────── Hero ───────────────────────── */
+
 function Hero() {
   return (
-    <section className="relative flex min-h-[86dvh] items-center overflow-hidden md:items-end">
+    <section className="relative flex min-h-[100dvh] items-end overflow-hidden">
       <img
-        src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2400&q=80"
-        alt="Open road through a mountain valley at sunrise"
+        src="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=2600&q=80"
+        alt="Majestic Himalayan lake at dawn"
         className="absolute inset-0 h-full w-full object-cover"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/55 to-ink/25" />
-      <div className="absolute inset-0 bg-[radial-gradient(90%_120%_at_20%_80%,rgba(32,29,24,0.45),transparent_60%)]" />
-      <div className="relative mx-auto w-full max-w-7xl px-5 pb-20 pt-28 md:px-8">
+      <div className="absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/40 to-ink/20" />
+      <div className="absolute inset-0 bg-[radial-gradient(120%_140%_at_75%_110%,rgba(63,107,79,0.35),transparent_55%)]" />
+
+      <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 pt-32 md:px-8 md:pb-20">
         <Reveal>
-          <h1 className="font-display max-w-4xl text-5xl leading-[1.02] text-canvas md:text-7xl [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]">
-            Know where you're going, <em className="text-canvas">before you go.</em>
-          </h1>
-        </Reveal>
-        <Reveal delay={120}>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-canvas/90">
-            SaveiTrip is a travel-tech workspace for trip planning, market analysis, destination
-            intelligence and emergency preparedness. Your account foundation is live and secure.
+          <p className="inline-flex items-center gap-2.5 rounded-full bg-canvas/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.22em] text-canvas/85 ring-1 ring-canvas/25 backdrop-blur-md">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent-amber" />
+            Travel intelligence for India
           </p>
         </Reveal>
-        <Reveal delay={220}>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link
-              to="/signup"
-              className="rounded-sm bg-canvas px-6 py-3 text-sm font-medium text-ink transition hover:-translate-y-0.5"
-            >
-              Get started
-            </Link>
-            <Link
-              to="/login"
-              className="rounded-sm border border-canvas/60 bg-ink/30 px-6 py-3 text-sm text-canvas backdrop-blur-sm transition hover:bg-canvas/10"
-            >
-              Explore the demo
-            </Link>
+
+        <Reveal delay={90}>
+          <h1 className="font-display mt-6 max-w-4xl text-5xl leading-[1.0] text-canvas sm:text-6xl md:text-7xl lg:text-[5.2rem] [text-shadow:0_3px_30px_rgba(0,0,0,0.45)]">
+            Know where you're going,{" "}
+            <em className="text-accent-amber">before you go.</em>
+          </h1>
+        </Reveal>
+
+        <Reveal delay={180}>
+          <p className="mt-7 max-w-xl text-lg leading-8 text-canvas/85 [text-shadow:0_1px_16px_rgba(0,0,0,0.5)]">
+            SaveiTrip is a premium travel-techn ogy workspace — trip planning, live market
+            analysis, destination intelligence and emergency preparedness for the way you
+            actually travel.
+          </p>
+        </Reveal>
+
+        <Reveal delay={260}>
+          <div className="mt-10 max-w-2xl rounded-2xl border border-canvas/20 bg-ink/40 p-3 shadow-2xl shadow-ink/40 backdrop-blur-xl">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center">
+              <div className="flex flex-1 items-center gap-3 px-3 py-2">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-canvas/10 text-accent-amber ring-1 ring-canvas/20">
+                  <Icon name="search" className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-canvas/55">Destination</p>
+                  <p className="text-sm text-canvas/90">Where are you headed?</p>
+                </div>
+              </div>
+              <div className="hidden h-10 w-px bg-canvas/20 md:block" />
+              <div className="flex flex-1 items-center gap-3 px-3 py-2">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-canvas/10 text-accent-amber ring-1 ring-canvas/20">
+                  <Icon name="calendar" className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-canvas/55">Travel dates</p>
+                  <p className="text-sm text-canvas/90">Plan ahead, arrive prepared</p>
+                </div>
+              </div>
+              <Link
+                to="/login"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-amber px-6 py-4 text-sm font-semibold text-canvas transition hover:-translate-y-0.5 hover:bg-accent-amber/90 md:self-stretch"
+              >
+                Start my trip
+                <Icon name="arrow-right" className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
         </Reveal>
-        <Reveal delay={320}>
-          <div className="mt-12 grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-3">
-            <HeroCapability icon="shield" label="JWT-secured sessions" />
-            <HeroCapability icon="basecamp" label="Account foundation live" />
-            <HeroCapability icon="pin" label="Built for India's destinations" />
+
+        <Reveal delay={340}>
+          <div className="mt-10 flex flex-wrap items-center gap-x-7 gap-y-3 text-sm text-canvas/75 [text-shadow:0_1px_12px_rgba(0,0,0,0.5)]">
+            <span className="inline-flex items-center gap-2">
+              <Icon name="shield-check" className="h-4 w-4 text-accent-amber" /> Secure live account
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <Icon name="scale" className="h-4 w-4 text-accent-amber" /> Real market prices
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <Icon name="pin" className="h-4 w-4 text-accent-amber" /> Built for India's destinations
+            </span>
           </div>
         </Reveal>
+      </div>
+
+      <div className="pointer-events-none absolute bottom-8 right-8 hidden items-center gap-2 text-[0.7rem] font-medium uppercase tracking-[0.2em] text-canvas/50 lg:flex">
+        Scroll
+        <span className="h-px w-10 bg-canvas/40" />
       </div>
     </section>
   );
 }
 
-const heroIcons = {
-  shield: (
-    <>
-      <path d="M12 3 5 6v5c0 5 3 8.4 7 10 4-1.6 7-5 7-10V6l-7-3Z" />
-      <path d="m9 12 2 2 4-4" />
-    </>
-  ),
-  basecamp: (
-    <>
-      <path d="M3 19h18M6 19v-8M10 19V6m4 13V6m4 13v-8" />
-      <path d="m12 6-3 4h6l-3-4Z" />
-    </>
-  ),
-  pin: (
-    <>
-      <path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11Zm0-8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-      <circle cx="12" cy="10" r="1.4" />
-    </>
-  )
-} as const;
-
-function HeroCapability({ icon, label }: { icon: keyof typeof heroIcons; label: string }) {
-  return (
-    <span className="group inline-flex items-center gap-3 rounded-sm border border-canvas/20 bg-gradient-to-b from-canvas/15 to-canvas/5 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-md transition-all duration-400 hover:-translate-y-0.5 hover:border-accent-amber/60 hover:from-canvas/20 hover:to-canvas/10">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-accent-amber text-canvas shadow-[0_4px_14px_-4px_rgba(167,116,47,0.7)] transition-transform duration-400 group-hover:scale-110">
-        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none">
-          {heroIcons[icon]}
-        </svg>
-      </span>
-      <span className="text-sm font-medium text-canvas/90">{label}</span>
-    </span>
-  );
-}
+/* ───────────────────────── TrustStrip ───────────────────────── */
 
 function TrustStrip() {
   const partners = [
@@ -192,24 +256,21 @@ function TrustStrip() {
   ];
 
   return (
-    <section id="platform" className="relative overflow-hidden border-b border-line/60 bg-canvas-alt/50 py-10">
+    <section id="platform" className="relative overflow-hidden border-y border-line/60 bg-canvas py-10">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <p className="text-center text-xs uppercase tracking-[0.2em] text-ink-faint">
           Guiding work informed by leading travel research
         </p>
         <div className="relative mt-8 overflow-hidden">
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-canvas-alt to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-canvas-alt to-transparent" />
-          <div className="marquee-track gap-12 pr-12">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-canvas to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-canvas to-transparent" />
+          <div className="marquee-track gap-14 pr-14">
             {[...partners, ...partners].map((partner, i) => (
-              <div
-                key={`${partner.name}-${i}`}
-                className="flex shrink-0 items-center gap-3 text-ink-faint"
-              >
-                <span className="flex h-9 w-9 items-center justify-center rounded-sm border border-line bg-surface font-display text-sm text-ink-soft">
+              <div key={`${partner.name}-${i}`} className="flex shrink-0 items-center gap-3 opacity-70 text-ink-soft">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-line bg-surface font-display text-sm text-ink-soft shadow-sm">
                   {partner.mark}
                 </span>
-                <span className="text-sm">{partner.name}</span>
+                <span className="text-sm font-medium">{partner.name}</span>
               </div>
             ))}
           </div>
@@ -219,40 +280,126 @@ function TrustStrip() {
   );
 }
 
+/* ───────────────────────── Destinations ───────────────────────── */
+
+function DestinationsSection() {
+  const places = [
+    {
+      img: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=900&q=75",
+      name: "The Taj & Heritage Core",
+      region: "Agra & beyond",
+      widths: "md:col-span-7",
+      aspect: "aspect-[4/5] md:aspect-[4/5]"
+    },
+    {
+      img: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=900&q=75",
+      name: "High-Altitude Ladakh",
+      region: "Pangong · Nubra · Leh",
+      widths: "md:col-span-5",
+      aspect: "aspect-[4/5] md:aspect-[4/5]"
+    },
+    {
+      img: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1200&q=75",
+      name: "Himalayan Foothills",
+      region: "Hidden valley trails",
+      widths: "md:col-span-5",
+      aspect: "aspect-[4/5] md:aspect-[4/5]"
+    },
+    {
+      img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=75",
+      name: "India's Open Roads",
+      region: "Coastlines & ranges",
+      widths: "md:col-span-7",
+      aspect: "aspect-[4/5] md:aspect-[4/5]"
+    }
+  ];
+
+  return (
+    <section id="destinations" className="mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-28">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <Reveal dir="up">
+          <p className="kicker">Curated for India</p>
+          <h2 className="font-display mt-4 max-w-xl text-4xl leading-[1.05] md:text-6xl">
+            Destinations that stay with you.
+          </h2>
+        </Reveal>
+        <Reveal dir="up" delay={120}>
+          <p className="max-w-sm leading-7 text-ink-soft">
+            From high-altitude valleys to heritage corridors — understand every place before you
+            arrive.
+          </p>
+        </Reveal>
+      </div>
+
+      <div className="mt-14 grid gap-5 md:grid-cols-12">
+        {places.map((place, i) => (
+          <Reveal key={place.name} dir="up" delay={i * 80} className={`h-full ${place.widths}`}>
+            <figure className="group relative h-full w-full overflow-hidden rounded-2xl bg-ink">
+              <img
+                src={place.img}
+                alt={`${place.name} destination`}
+                loading="lazy"
+                className={`${place.aspect} w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105`}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/15 to-transparent" />
+              <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-7">
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent-amber">{place.region}</p>
+                  <p className="font-display mt-2 text-2xl text-canvas md:text-3xl">{place.name}</p>
+                </div>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-canvas/15 text-canvas ring-1 ring-canvas/30 backdrop-blur-md transition-transform group-hover:translate-x-1">
+                  <Icon name="arrow-right" className="h-4 w-4" />
+                </span>
+              </figcaption>
+            </figure>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ───────────────────────── Platform ───────────────────────── */
+
 function PlatformSection() {
   return (
-    <section className="mx-auto max-w-7xl px-5 py-24 md:px-8">
-      <Reveal dir="up">
-        <p className="text-xs uppercase tracking-[0.2em] text-ink-faint">The foundation</p>
-        <h2 className="font-display mt-4 max-w-2xl text-4xl leading-tight md:text-5xl">
-          A solid base for every journey, already in place.
-        </h2>
-      </Reveal>
-      <div className="mt-14 grid gap-5 md:grid-cols-3">
+    <section className="border-y border-line/60 bg-canvas-alt/40 py-24 md:py-28">
+      <div className="mx-auto max-w-7xl px-5 md:px-8">
         <Reveal dir="up">
-          <PlatformCard
-            number="01"
-            title="Secure accounts, live now"
-            body="Create your workspace and sign in with confidence. Sessions are protected with signed JWT tokens, so your saved ideas stay yours."
-            accent="green"
-          />
+          <p className="kicker">The foundation</p>
+          <h2 className="font-display mt-4 max-w-2xl text-4xl leading-[1.05] md:text-6xl">
+            A solid base for every journey, already in place.
+          </h2>
         </Reveal>
-        <Reveal dir="up" delay={90}>
-          <PlatformCard
-            number="02"
-            title="One place for trip ideas"
-            body="Your dashboard is your basecamp: a home for destinations you want to explore, questions you want answered, and plans to revisit."
-            accent="amber"
-          />
-        </Reveal>
-        <Reveal dir="up" delay={180}>
-          <PlatformCard
-            number="03"
-            title="Built to grow with real data"
-            body="New intelligence services map onto the same account. Nothing future-facing is faked; what's not live yet is clearly marked."
-            accent="green"
-          />
-        </Reveal>
+        <div className="mt-16 grid gap-6 md:grid-cols-3">
+          <Reveal dir="up">
+            <PlatformCard
+              icon="shield-check"
+              number="01"
+              title="Secure accounts, live now"
+              body="Create your workspace and sign in with confidence. Sessions are protected with signed JWT tokens, so your saved ideas stay yours."
+              accent="green"
+            />
+          </Reveal>
+          <Reveal dir="up" delay={90}>
+            <PlatformCard
+              icon="basecamp"
+              number="02"
+              title="One place for trip ideas"
+              body="Your dashboard is your basecamp: a home for destinations you want to explore, questions you want answered, and plans to revisit."
+              accent="amber"
+            />
+          </Reveal>
+          <Reveal dir="up" delay={180}>
+            <PlatformCard
+              icon="trend"
+              number="03"
+              title="Built to grow with real data"
+              body="New intelligence services map onto the same account. Nothing future-facing is faked; what's not live yet is clearly marked."
+              accent="green"
+            />
+          </Reveal>
+        </div>
       </div>
     </section>
   );
@@ -264,50 +411,59 @@ const cardAccents = {
   red: "text-accent-red"
 } as const;
 
+const cardIconAccents = {
+  green: "bg-accent-green-soft text-accent-green",
+  amber: "bg-accent-amber-soft text-accent-amber",
+  red: "bg-accent-red-soft text-accent-red"
+} as const;
+
 function PlatformCard({
+  icon,
   number,
   title,
   body,
   accent
 }: {
+  icon: IconName;
   number: string;
   title: string;
   body: string;
   accent: keyof typeof cardAccents;
 }) {
   return (
-    <article className="lift-card group flex h-full flex-col rounded-sm bg-surface p-7 shadow-[0_24px_70px_-45px_rgba(32,29,24,0.35)] hover:shadow-[0_32px_80px_-40px_rgba(32,29,24,0.45)]">
-      <span className={`font-display text-4xl ${cardAccents[accent]}`}>{number}</span>
-      <h3 className="font-display mt-6 text-2xl">{title}</h3>
+    <article className="card lift-card group flex h-full flex-col p-8">
+      <div className="flex items-center justify-between">
+        <span className={`grid h-12 w-12 place-items-center rounded-xl ${cardIconAccents[accent]}`}>
+          <Icon name={icon} className="h-5 w-5" />
+        </span>
+        <span className={`font-display text-2xl ${cardAccents[accent]}`}>{number}</span>
+      </div>
+      <h3 className="font-display mt-7 text-2xl">{title}</h3>
       <p className="mt-3 text-sm leading-7 text-ink-soft">{body}</p>
-      <span className="mt-auto pt-6" aria-hidden="true">
-        <svg
-          className="h-5 w-5 text-ink-faint transition-transform duration-500 group-hover:translate-x-1"
-          viewBox="0 0 20 20"
-          fill="none"
-        >
-          <path d="M4 10h12m0 0-4-4m4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+      <span className="mt-auto pt-7" aria-hidden="true">
+        <Icon name="arrow-right" className="h-5 w-5 text-ink-faint transition-transform duration-500 group-hover:translate-x-1.5 group-hover:text-accent-green" />
       </span>
     </article>
   );
 }
 
+/* ───────────────────────── Services ───────────────────────── */
+
 function ServicesSection() {
   return (
-    <section id="services" className="mx-auto max-w-7xl px-5 py-24 md:px-8">
+    <section id="services" className="mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-28">
       <Reveal dir="up">
-        <p className="text-xs uppercase tracking-[0.2em] text-ink-faint">The roadmap</p>
-        <h2 className="font-display mt-4 max-w-2xl text-4xl leading-tight md:text-5xl">
+        <p className="kicker">The roadmap</p>
+        <h2 className="font-display mt-4 max-w-2xl text-4xl leading-[1.05] md:text-6xl">
           Intelligence services, staged honestly.
         </h2>
-        <p className="mt-5 max-w-xl leading-7 text-ink-soft">
+        <p className="mt-6 max-w-xl leading-7 text-ink-soft">
           Three capabilities are mapped onto your account. Each is researched and planned; the status
           of each is communicated plainly so you always know what to expect.
         </p>
       </Reveal>
 
-      <div className="mt-14 grid gap-5 md:grid-cols-3">
+      <div className="mt-16 grid gap-6 md:grid-cols-3">
         {services.map((service, i) => (
           <Reveal key={service.slug} dir="up" delay={i * 90}>
             <ServiceCard service={service} />
@@ -318,42 +474,89 @@ function ServicesSection() {
   );
 }
 
+const serviceIcons: Record<string, IconName> = {
+  comparison: "scale",
+  prediction: "trend",
+  sos: "shield"
+};
+
 function ServiceCard({ service }: { service: (typeof services)[number] }) {
   return (
-    <article className="lift-card group flex h-full flex-col rounded-sm border border-line bg-surface p-7 transition-colors hover:border-accent-green">
-      <div className="flex items-center justify-between">
-        <span className="font-display text-4xl text-ink-faint">{service.number}</span>
-        <span className="rounded-sm bg-accent-green-soft px-3 py-1 text-xs font-medium text-accent-green">
-          {service.status}
+    <article className="card lift-card group flex h-full flex-col p-8">
+      <div className="flex items-start justify-between gap-4">
+        <span className="grid h-12 w-12 place-items-center rounded-xl bg-canvas text-ink-faint ring-1 ring-line transition-colors group-hover:bg-accent-green group-hover:text-canvas group-hover:ring-accent-green">
+          <Icon name={serviceIcons[service.slug] ?? "sparkles"} className="h-5 w-5" />
         </span>
+        <span className={`badge ${statusTone(service.status)}`}>{service.status}</span>
       </div>
-      <h3 className="font-display mt-6 text-2xl">{service.title}</h3>
+      <h3 className="font-display mt-7 text-2xl">{service.title}</h3>
       <p className="mt-3 text-sm leading-6 text-ink-soft">{service.summary}</p>
 
-      <ul className="mt-6 space-y-2 border-t border-line pt-5">
+      <ul className="mt-6 space-y-3 border-t border-line/70 pt-6">
         {service.purpose.map((item) => (
-          <li key={item} className="flex items-start gap-2.5 text-sm text-ink-soft">
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-green" aria-hidden="true" />
+          <li key={item} className="flex items-start gap-3 text-sm text-ink-soft">
+            <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-accent-green-soft text-accent-green">
+              <Icon name="check" className="h-3 w-3" />
+            </span>
             {item}
           </li>
         ))}
       </ul>
 
-      <div className="mt-auto pt-6">
-        <span className="inline-flex items-center gap-2 text-sm font-medium text-accent-green">
+      <div className="mt-auto pt-7">
+        <span className="inline-flex items-center gap-2 text-sm font-semibold text-accent-green">
           {service.cta}
-          <svg
-            className="h-4 w-4 transition-transform duration-400 group-hover:translate-x-1"
-            viewBox="0 0 20 20"
-            fill="none"
-          >
-            <path d="M4 10h12m0 0-4-4m4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <Icon name="arrow-right" className="h-4 w-4 transition-transform duration-400 group-hover:translate-x-1" />
         </span>
       </div>
     </article>
   );
 }
+
+/* ───────────────────────── Experience Band ───────────────────────── */
+
+function ExperienceBand() {
+  return (
+    <section className="relative overflow-hidden border-y border-line/60 bg-ink py-24 text-canvas md:py-32">
+      <img
+        src="https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=2000&q=80"
+        alt="Himalayan mountain road at golden hour"
+        className="absolute inset-0 h-full w-full object-cover opacity-40"
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/40" />
+      <div className="relative mx-auto max-w-7xl px-5 md:px-8">
+        <Reveal dir="up">
+          <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-accent-amber">
+            <Icon name="sparkles" className="h-4 w-4" /> The experience
+          </p>
+          <h2 className="font-display mt-5 max-w-2xl text-4xl leading-[1.06] md:text-6xl">
+            Plan with clarity. Travel with confidence.
+          </h2>
+        </Reveal>
+        <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-canvas/15 bg-canvas/15 sm:grid-cols-3">
+          {[
+            { icon: "search" as IconName, title: "Compare real prices", body: "Live market analysis across trusted providers so you always know a fair price before you book." },
+            { icon: "trend" as IconName, title: "Understand conditions", body: "Destination and weather context researched carefully, so nothing catches you by surprise." },
+            { icon: "shield" as IconName, title: "Stay prepared", body: "Emergency and limited-connectivity research designed in from the very start." }
+          ].map((item, i) => (
+            <div key={item.title} className="flex flex-col gap-4 bg-ink/70 p-8 backdrop-blur-sm">
+              <span className="grid h-11 w-11 place-items-center rounded-xl bg-canvas/10 text-accent-amber ring-1 ring-canvas/20">
+                <Icon name={item.icon} className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-canvas/45">0{i + 1}</p>
+                <h3 className="font-display mt-2 text-xl">{item.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-canvas/70">{item.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ───────────────────────── How It Works ───────────────────────── */
 
 function HowItWorks() {
   const steps = [
@@ -372,30 +575,35 @@ function HowItWorks() {
   ];
 
   return (
-    <section id="how" className="border-y border-line/60 bg-canvas-alt/40 py-24">
-      <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <Reveal dir="up">
-          <p className="text-xs uppercase tracking-[0.2em] text-ink-faint">How it works</p>
-          <h2 className="font-display mt-4 max-w-2xl text-4xl leading-tight md:text-5xl">
-            From first sign-in to fully informed travel.
-          </h2>
-        </Reveal>
+    <section id="how" className="mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-28">
+      <Reveal dir="up">
+        <p className="kicker">How it works</p>
+        <h2 className="font-display mt-4 max-w-2xl text-4xl leading-[1.05] md:text-6xl">
+          From first sign-in to fully informed travel.
+        </h2>
+      </Reveal>
 
-        <div className="mt-14 grid gap-5 md:grid-cols-3">
-          {steps.map((step, i) => (
-            <Reveal key={step.title} dir="up" delay={i * 100}>
-              <div className="lift-card flex h-full flex-col rounded-sm border border-line bg-surface p-7">
-                <span className="font-display text-5xl text-accent-green">{`0${i + 1}`}</span>
-                <h3 className="font-display mt-6 text-xl">{step.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-ink-soft">{step.body}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+      <div className="mt-16 grid gap-6 md:grid-cols-3">
+        {steps.map((step, i) => (
+          <Reveal key={step.title} dir="up" delay={i * 100}>
+            <div className="relative h-full overflow-hidden rounded-2xl border border-line bg-surface p-8">
+              <span className="absolute -right-2 -top-6 font-display text-[7rem] leading-none text-ink/5">
+                {`0${i + 1}`}
+              </span>
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-ink font-display text-lg text-canvas shadow-lg shadow-ink/20">
+                {`0${i + 1}`}
+              </span>
+              <h3 className="font-display mt-7 text-2xl">{step.title}</h3>
+              <p className="mt-3 text-sm leading-7 text-ink-soft">{step.body}</p>
+            </div>
+          </Reveal>
+        ))}
       </div>
     </section>
   );
 }
+
+/* ───────────────────────── Principles ───────────────────────── */
 
 function PrinciplesSection() {
   const principles = [
@@ -418,106 +626,67 @@ function PrinciplesSection() {
   ];
 
   return (
-    <section id="principles" className="mx-auto max-w-7xl px-5 py-24 md:px-8">
-      <Reveal dir="up">
-        <p className="text-xs uppercase tracking-[0.2em] text-ink-faint">Principles</p>
-        <h2 className="font-display mt-4 max-w-2xl text-4xl leading-tight md:text-5xl">
-          How we build, so you can trust the journey.
-        </h2>
-      </Reveal>
+    <section id="principles" className="border-t border-line/60 bg-canvas-alt/40 py-24 md:py-28">
+      <div className="mx-auto max-w-7xl px-5 md:px-8">
+        <Reveal dir="up">
+          <p className="kicker">Principles</p>
+          <h2 className="font-display mt-4 max-w-2xl text-4xl leading-[1.05] md:text-6xl">
+            How we build, so you can trust the journey.
+          </h2>
+        </Reveal>
 
-      <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-sm border border-line bg-line md:grid-cols-2">
-        {principles.map((principle, i) => (
-          <Reveal key={principle.title} dir="up" delay={i * 80} className="h-full">
-            <div className="lift-card group flex h-full flex-col justify-between gap-8 bg-surface p-8 transition-colors hover:bg-canvas-alt">
-              <h3 className="font-display text-2xl">{principle.title}</h3>
-              <div className="flex items-end justify-between gap-4">
-                <p className="max-w-sm text-sm leading-7 text-ink-soft">{principle.body}</p>
-                <span className="font-display text-5xl text-ink-faint/40">{`0${i + 1}`}</span>
+        <div className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-2">
+          {principles.map((principle, i) => (
+            <Reveal key={principle.title} dir="up" delay={i * 80} className="h-full">
+              <div className="group flex h-full flex-col justify-between gap-8 bg-surface p-8 transition-colors hover:bg-canvas md:p-10">
+                <div className="flex items-start justify-between gap-4">
+                  <h3 className="font-display text-2xl md:text-3xl">{principle.title}</h3>
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent-green-soft text-sm font-semibold text-accent-green">
+                    {`0${i + 1}`}
+                  </span>
+                </div>
+                <p className="max-w-md text-sm leading-7 text-ink-soft">{principle.body}</p>
               </div>
-            </div>
-          </Reveal>
-        ))}
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
-function ShowcaseBand() {
-  const places = [
-    {
-      img: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=70",
-      name: "Pangong Tso, Ladakh",
-      tag: "High-altitude lakes"
-    },
-    {
-      img: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=70",
-      name: "Himachal foothills",
-      tag: "Hidden valley trails"
-    },
-    {
-      img: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=800&q=70",
-      name: "India's heritage",
-      tag: "Monuments & local culture"
-    }
-  ];
-
-  return (
-    <section className="mx-auto max-w-7xl px-5 py-10 md:px-8">
-      <Reveal dir="up">
-        <div className="grid gap-5 md:grid-cols-3">
-          {places.map((place, i) => (
-            <Reveal key={place.name} dir="up" delay={i * 110} className="h-full">
-              <figure className="lift-card group relative aspect-[4/5] overflow-hidden rounded-sm bg-ink">
-                <img
-                  src={place.img}
-                  alt={`${place.name} destination`}
-                  loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" />
-                <figcaption className="absolute inset-x-0 bottom-0 p-6">
-                  <p className="text-xs uppercase tracking-[0.18em] text-canvas/70">{place.tag}</p>
-                  <p className="font-display mt-2 text-2xl text-canvas">{place.name}</p>
-                </figcaption>
-              </figure>
-            </Reveal>
-          ))}
-        </div>
-      </Reveal>
-    </section>
-  );
-}
+/* ───────────────────────── Final CTA ───────────────────────── */
 
 function FinalCta() {
   return (
-    <section className="mx-auto max-w-7xl px-5 pb-24 md:px-8">
+    <section className="relative overflow-hidden py-24 md:py-32">
+      <img
+        src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2200&q=80"
+        alt="Sunrise over an open valley road"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-canvas via-canvas/0 to-canvas/0" />
+      <div className="absolute inset-0 bg-ink/60" />
       <Reveal dir="scale">
-        <div className="relative overflow-hidden rounded-sm bg-ink px-8 py-20 text-center md:px-16">
-          <div className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-accent-green/20 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-20 -right-10 h-72 w-72 rounded-full bg-accent-amber/20 blur-3xl" />
-          <div className="relative">
-            <h2 className="font-display mx-auto max-w-3xl text-4xl leading-tight text-canvas md:text-5xl">
-              Start your basecamp today.
-            </h2>
-            <p className="mx-auto mt-5 max-w-xl leading-7 text-canvas/70">
-              Create a free account and see what a travel intelligence workspace looks like. Explore
-              the product with one click.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Link
-                to="/signup"
-                className="rounded-sm bg-canvas px-6 py-3 text-sm font-medium text-ink transition hover:-translate-y-0.5"
-              >
-                Get started
-              </Link>
-              <Link
-                to="/login"
-                className="rounded-sm border border-canvas/40 px-6 py-3 text-sm text-canvas transition hover:bg-canvas/10"
-              >
-                Explore the demo
-              </Link>
-            </div>
+        <div className="relative mx-auto max-w-3xl px-6 text-center">
+          <p className="inline-flex items-center gap-2.5 rounded-full bg-canvas/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.22em] text-canvas/85 ring-1 ring-canvas/25 backdrop-blur-md">
+            <Icon name="compass" className="h-3.5 w-3.5 text-accent-amber" /> Your basecamp awaits
+          </p>
+          <h2 className="font-display mt-6 text-4xl leading-[1.05] text-canvas md:text-6xl [text-shadow:0_3px_30px_rgba(0,0,0,0.4)]">
+            Start your journey today.
+          </h2>
+          <p className="mx-auto mt-6 max-w-xl leading-7 text-canvas/80">
+            Create a free account and see what a travel intelligence workspace looks like. Explore
+            the product with one click.
+          </p>
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+            <Link to="/signup" className="btn btn-canvas !px-7 !py-3.5 text-base">
+              Get started
+              <Icon name="arrow-right" className="h-4 w-4" />
+            </Link>
+            <Link to="/login" className="btn btn-outline-light !px-7 !py-3.5 text-base">
+              Explore the demo
+            </Link>
           </div>
         </div>
       </Reveal>
@@ -525,15 +694,15 @@ function FinalCta() {
   );
 }
 
+/* ───────────────────────── Footer ───────────────────────── */
+
 function Footer() {
   return (
     <footer className="border-t border-line bg-canvas-alt/50">
-      <div className="mx-auto max-w-7xl px-5 py-14 md:px-8">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <div className="mx-auto max-w-7xl px-5 py-16 md:px-8">
+        <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div>
-            <span className="font-display text-2xl">
-              Savei<span className="text-accent-green">Trip</span>
-            </span>
+            <Brand className="text-2xl" />
             <p className="mt-4 max-w-xs text-sm leading-6 text-ink-soft">
               A travel intelligence foundation. Research-led, honestly staged, and built for India's
               destinations.
@@ -541,9 +710,9 @@ function Footer() {
             <p className="mt-6 text-xs text-ink-faint">Foundation release 2026</p>
           </div>
           <div>
-            <h4 className="text-xs uppercase tracking-[0.18em] text-ink-faint">Platform</h4>
+            <h4 className="text-xs uppercase tracking-[0.18em] text-ink-faint">Explore</h4>
             <ul className="mt-4 space-y-3 text-sm text-ink-soft">
-              <li><a href="#platform" className="transition-colors hover:text-ink">The foundation</a></li>
+              <li><a href="#destinations" className="transition-colors hover:text-ink">Destinations</a></li>
               <li><a href="#services" className="transition-colors hover:text-ink">Services</a></li>
               <li><a href="#how" className="transition-colors hover:text-ink">How it works</a></li>
               <li><a href="#principles" className="transition-colors hover:text-ink">Principles</a></li>
@@ -554,7 +723,7 @@ function Footer() {
             <ul className="mt-4 space-y-3 text-sm text-ink-soft">
               <li><Link to="/login" className="transition-colors hover:text-ink">Log in</Link></li>
               <li><Link to="/signup" className="transition-colors hover:text-ink">Create account</Link></li>
-              <li><Link to="/#platform" className="transition-colors hover:text-ink">The platform</Link></li>
+              <li><a href="#platform" className="transition-colors hover:text-ink">The platform</a></li>
             </ul>
           </div>
           <div>

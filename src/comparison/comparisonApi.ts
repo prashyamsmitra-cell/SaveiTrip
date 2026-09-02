@@ -43,6 +43,7 @@ export type CheapestOffer = {
 export type ComparisonSearchResult = {
   query: TravelQuery;
   results: ComparisonOffer[];
+  allResults?: ComparisonOffer[];
   cheapest: CheapestOffer | null;
   lastChecked: string;
 };

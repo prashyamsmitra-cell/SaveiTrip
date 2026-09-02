@@ -2,14 +2,16 @@ import type { ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { logout } from "../auth/authApi";
 import { useAuth } from "../auth/AuthContext";
+import { Icon, type IconName } from "./Icon";
+import { Avatar, Brand } from "./ui";
 
-const nav = [
-  { to: "/dashboard", label: "Dashboard" },
-  { to: "/trips/new", label: "Trip consultation" },
-  { to: "/comparison", label: "Market analysis" },
-  { to: "/prediction", label: "Intelligence" },
-  { to: "/sos", label: "SOS research" },
-  { to: "/profile", label: "Profile" }
+const nav: readonly { to: string; label: string; icon: IconName }[] = [
+  { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
+  { to: "/trips/new", label: "Trip consultation", icon: "route" },
+  { to: "/comparison", label: "Market analysis", icon: "scale" },
+  { to: "/prediction", label: "Intelligence", icon: "trend" },
+  { to: "/sos", label: "SOS research", icon: "shield" },
+  { to: "/profile", label: "Profile", icon: "user" }
 ];
 
 export default function AppShell({ children }: { children: ReactNode }) {
@@ -24,44 +26,83 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-canvas">
-      <header className="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-4 md:flex-row md:items-center md:justify-between md:px-8">
-          <div className="flex items-center justify-between gap-4">
-            <NavLink to="/dashboard" className="font-display text-lg">
-              Savei<span className="text-accent-green">Trip</span>
+      <a href="#main-content" className="skip-link">
+        Skip to content
+      </a>
+      <header className="sticky top-0 z-40 border-b border-line/80 bg-canvas/90 backdrop-blur-md">
+        <div className="mx-auto max-w-7xl px-5 md:px-8">
+          <div className="flex h-16 items-center justify-between gap-4">
+            <NavLink to="/dashboard" className="shrink-0">
+              <Brand />
             </NavLink>
-            <div className="md:hidden text-right text-xs text-ink-faint">{user?.name}</div>
+            <nav className="hidden items-center gap-1.5 lg:flex">
+              {nav.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    `inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[0.95rem] font-medium transition-colors ${
+                      isActive
+                        ? "bg-ink text-canvas shadow-sm"
+                        : "text-ink-soft hover:bg-surface hover:text-ink"
+                    }`
+                  }
+                >
+                  <Icon name={item.icon} className="h-4 w-4" />
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+            <div className="hidden items-center gap-4 lg:flex">
+              <div className="flex items-center gap-3">
+                <Avatar name={user?.name} />
+                <div className="text-right">
+                  <p className="text-sm font-medium leading-tight">{user?.name}</p>
+                  <p className="text-xs text-ink-faint">{user?.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                aria-label="Log out"
+                className="btn btn-ghost !px-3"
+              >
+                <Icon name="logout" className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex items-center gap-2 lg:hidden">
+              <Avatar name={user?.name} className="h-8 w-8 text-[0.7rem]" />
+              <button
+                onClick={handleLogout}
+                aria-label="Log out"
+                className="btn btn-ghost !px-2.5"
+              >
+                <Icon name="logout" className="h-4 w-4" />
+              </button>
+            </div>
           </div>
-          <nav className="flex gap-2 overflow-x-auto pb-1 md:pb-0">
+          <nav className="-mx-1 mb-3 flex gap-1.5 overflow-x-auto pb-1 lg:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {nav.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `shrink-0 rounded-sm px-3 py-2 text-sm transition ${
-                    isActive ? "bg-ink text-canvas" : "text-ink-soft hover:bg-surface hover:text-ink"
+                  `inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                    isActive
+                      ? "bg-ink text-canvas"
+                      : "text-ink-soft hover:bg-surface hover:text-ink"
                   }`
                 }
               >
+                <Icon name={item.icon} className="h-3.5 w-3.5" />
                 {item.label}
               </NavLink>
             ))}
           </nav>
-          <div className="hidden items-center gap-3 md:flex">
-            <div className="text-right">
-              <p className="text-sm font-medium">{user?.name}</p>
-              <p className="text-xs text-ink-faint">{user?.email}</p>
-            </div>
-            <button onClick={handleLogout} className="rounded-sm border border-line px-4 py-2 text-sm text-ink-soft transition hover:border-ink hover:text-ink">
-              Log out
-            </button>
-          </div>
-          <button onClick={handleLogout} className="rounded-sm border border-line px-4 py-2 text-sm text-ink-soft transition hover:border-ink hover:text-ink md:hidden">
-            Log out
-          </button>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-12">{children}</main>
+      <main id="main-content" className="page-fade mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-12">
+        {children}
+      </main>
     </div>
   );
 }

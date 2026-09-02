@@ -55,4 +55,11 @@ export const services: Service[] = [
   }
 ];
 
+export function statusTone(status: string): string {
+  if (status === "Under Research") {
+    return "bg-accent-amber-soft text-accent-amber";
+  }
+  return "bg-accent-green-soft text-accent-green";
+}
+
 export const getService = (slug: ServiceSlug) => services.find((service) => service.slug === slug);

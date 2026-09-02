@@ -2,6 +2,8 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getGoogleStatus, login, loginAsDemo } from "./authApi";
 import { useAuth } from "./AuthContext";
+import { Icon } from "../shared/Icon";
+import { Brand, Spinner } from "../shared/ui";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -13,7 +15,9 @@ export default function LoginPage() {
   const [googleReady, setGoogleReady] = useState<boolean | null>(null);
 
   useEffect(() => {
-    getGoogleStatus().then((status) => setGoogleReady(status.configured)).catch(() => setGoogleReady(false));
+    getGoogleStatus()
+      .then((status) => setGoogleReady(status.configured))
+      .catch(() => setGoogleReady(false));
   }, []);
 
   async function handleSubmit(event: FormEvent) {
@@ -39,23 +43,58 @@ export default function LoginPage() {
         onClick={() => {
           window.location.href = "/api/google/start";
         }}
-        className="w-full rounded-sm border border-line bg-surface px-5 py-3 text-sm text-ink transition hover:border-ink disabled:cursor-not-allowed disabled:text-ink-faint"
+        className="btn w-full justify-center border border-line bg-surface-high !text-ink hover:border-ink hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {googleReady ? "Continue with Google" : "Google sign-in not configured"}
+        {googleReady ? (
+          <>
+            <GoogleMark />
+            Continue with Google
+          </>
+        ) : (
+          "Google sign-in not configured"
+        )}
       </button>
+
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" />
-        <Field label="Password" type="password" value={password} onChange={setPassword} placeholder="Minimum 8 characters" />
-        {error && <p className="rounded-sm bg-accent-red-soft px-4 py-3 text-sm text-accent-red">{error}</p>}
-        <button disabled={loading} className="w-full rounded-sm bg-ink px-5 py-3 text-sm font-medium text-canvas transition hover:-translate-y-0.5 disabled:opacity-60">
-          {loading ? "Signing in..." : "Log in"}
+        <Field
+          label="Email"
+          type="email"
+          value={email}
+          onChange={setEmail}
+          placeholder="you@example.com"
+          autoComplete="email"
+        />
+        <Field
+          label="Password"
+          type="password"
+          value={password}
+          onChange={setPassword}
+          placeholder="Minimum 8 characters"
+          autoComplete="current-password"
+        />
+        {error && (
+          <div className="alert-error" role="alert">
+            <Icon name="alert" className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+        <button disabled={loading} className="btn btn-primary w-full justify-center">
+          {loading ? (
+            <>
+              <Spinner /> Signing in...
+            </>
+          ) : (
+            "Log in"
+          )}
         </button>
       </form>
+
       <div className="mt-6 flex items-center gap-3 text-ink-faint">
         <span className="h-px flex-1 bg-line" />
-        <span className="text-xs uppercase tracking-wide">or</span>
+        <span className="text-xs font-medium uppercase tracking-wide">or</span>
         <span className="h-px flex-1 bg-line" />
       </div>
+
       <button
         type="button"
         disabled={loading}
@@ -72,49 +111,103 @@ export default function LoginPage() {
             setLoading(false);
           }
         }}
-        className="mt-6 w-full rounded-sm border border-accent-green bg-accent-green-soft px-5 py-3 text-sm font-medium text-accent-green transition hover:-translate-y-0.5 disabled:opacity-60"
+        className="btn btn-soft-green mt-4 w-full justify-center"
       >
         Explore with a demo account
       </button>
-      <p className="mt-6 text-center text-sm text-ink-soft">
-        New to SaveiTrip? <Link to="/signup" className="text-ink underline underline-offset-4">Create an account</Link>
+
+      <p className="mt-7 text-center text-sm text-ink-soft">
+        New to SaveiTrip?{" "}
+        <Link to="/signup" className="font-medium text-ink underline underline-offset-4 hover:text-accent-green transition-colors">
+          Create an account
+        </Link>
       </p>
     </AuthFrame>
   );
 }
 
+function GoogleMark() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M21.35 11.1H12v2.9h5.35c-.25 1.6-1.9 4.45-5.35 4.45-3.2 0-5.85-2.65-5.85-5.9S9 6.9 12 6.9c1.8 0 3.05.77 3.75 1.45l2.55-2.5C16.8 4.5 14.6 3.4 12 3.4 7.15 3.4 3.2 7.3 3.2 12s3.95 8.6 8.8 8.6c5.1 0 8.5-3.6 8.5-8.5 0-.55-.05-1-.15-1.45Z"
+      />
+    </svg>
+  );
+}
+
 export function AuthFrame({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return (
-    <div className="grid min-h-screen bg-canvas md:grid-cols-[0.95fr_1.05fr]">
-      <section className="relative hidden overflow-hidden md:block">
-        <img className="h-full w-full object-cover" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80" alt="Warm mountain valley at sunrise" />
-        <div className="absolute inset-0 bg-ink/35" />
-        <Link to="/" className="font-display absolute left-10 top-8 text-xl text-canvas">SaveiTrip</Link>
-        <p className="absolute bottom-10 left-10 max-w-sm text-2xl font-medium leading-tight text-canvas">Travel should feel exciting and informed at the same time.</p>
+    <div className="grid min-h-screen bg-canvas lg:grid-cols-[1fr_1.05fr]">
+      <section className="relative hidden overflow-hidden lg:block">
+        <img
+          className="h-full w-full object-cover"
+          src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80"
+          alt="Warm mountain valley at sunrise"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/92 via-ink/40 to-ink/30" />
+        <Link to="/" className="absolute left-10 top-9">
+          <Brand className="text-xl text-canvas" />
+        </Link>
+        <div className="absolute inset-x-10 bottom-12 max-w-md">
+          <p className="font-display text-[1.65rem] leading-snug text-canvas [text-shadow:0_2px_20px_rgba(0,0,0,0.4)]">
+            Travel should feel exciting and informed at the same time.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-canvas/25 pt-5 text-xs font-medium text-canvas/70">
+            <span className="inline-flex items-center gap-1.5">
+              <Icon name="shield-check" className="h-3.5 w-3.5 text-accent-amber" /> Secure sessions
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Icon name="sparkles" className="h-3.5 w-3.5 text-accent-green" /> AI-powered insights
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Icon name="pin" className="h-3.5 w-3.5 text-canvas/80" /> Built for India
+            </span>
+          </div>
+        </div>
       </section>
-      <section className="flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md">
-          <Link to="/" className="font-display text-xl md:hidden">Savei<span className="text-accent-green">Trip</span></Link>
-          <h1 className="font-display mt-10 text-4xl leading-tight md:mt-0">{title}</h1>
-          <p className="mt-3 text-ink-soft">{subtitle}</p>
-          <div className="mt-8">{children}</div>
+
+      <section className="flex min-h-screen items-center justify-center px-6 py-12">
+        <div className="w-full max-w-md page-fade">
+          <Link to="/" className="lg:hidden">
+            <Brand className="text-xl" />
+          </Link>
+          <h1 className="font-display mt-10 text-4xl leading-[1.05] lg:mt-0 md:text-5xl">{title}</h1>
+          <p className="mt-3 leading-7 text-ink-soft">{subtitle}</p>
+          <div className="mt-10">{children}</div>
         </div>
       </section>
     </div>
   );
 }
 
-export function Field({ label, type, value, onChange, placeholder }: { label: string; type: string; value: string; onChange: (value: string) => void; placeholder?: string }) {
+export function Field({
+  label,
+  type,
+  value,
+  onChange,
+  placeholder,
+  autoComplete
+}: {
+  label: string;
+  type: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  autoComplete?: string;
+}) {
   return (
-    <label className="block text-sm">
-      <span className="text-ink-soft">{label}</span>
+    <label className="block">
+      <span className="field-label">{label}</span>
       <input
         required
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="mt-2 w-full rounded-sm border border-line bg-surface px-4 py-3 outline-none transition focus:border-ink focus:ring-2 focus:ring-accent-green-soft"
+        autoComplete={autoComplete}
+        className="input"
       />
     </label>
   );
