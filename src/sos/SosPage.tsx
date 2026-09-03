@@ -1,8 +1,8 @@
 import ServiceDetail from "../shared/ServiceDetail";
-import { services } from "../shared/services";
+import { getService } from "../shared/services";
 import { Icon } from "../shared/Icon";
 
-const service = services[2];
+const service = getService("sos")!;
 
 export default function SosPage() {
   return (

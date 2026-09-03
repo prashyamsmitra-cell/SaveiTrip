@@ -1,4 +1,4 @@
-export type ServiceSlug = "comparison" | "prediction" | "sos";
+export type ServiceSlug = "assistant" | "helpers" | "comparison" | "sos";
 
 export type Service = {
   slug: ServiceSlug;
@@ -12,10 +12,38 @@ export type Service = {
 
 export const services: Service[] = [
   {
-    slug: "comparison",
+    slug: "assistant",
     number: "01",
-    title: "Travel Market Analysis",
-    status: "Coming Soon",
+    title: "Travel Assistant",
+    status: "Live",
+    cta: "Open",
+    summary: "Your unified AI travel companion for Indian destinations.",
+    purpose: [
+      "conversational trip planning",
+      "risk and safety assessment",
+      "budget estimation",
+      "destination intelligence"
+    ]
+  },
+  {
+    slug: "helpers",
+    number: "02",
+    title: "Travel Helper",
+    status: "Live",
+    cta: "Browse",
+    summary: "Find verified local guides and helpers across India.",
+    purpose: [
+      "local guide discovery",
+      "verified helpers",
+      "regional expertise",
+      "authentic experiences"
+    ]
+  },
+  {
+    slug: "comparison",
+    number: "03",
+    title: "Market Analysis",
+    status: "Live",
     cta: "Explore",
     summary: "Understand what your trip should cost before you book.",
     purpose: [
@@ -26,22 +54,8 @@ export const services: Service[] = [
     ]
   },
   {
-    slug: "prediction",
-    number: "02",
-    title: "Travel Intelligence",
-    status: "Coming Soon",
-    cta: "Explore",
-    summary: "Prepare for destination conditions with future ML-powered context.",
-    purpose: [
-      "weather and rainfall signals",
-      "floods, landslides and snowfall",
-      "destination conditions",
-      "travel suitability context"
-    ]
-  },
-  {
     slug: "sos",
-    number: "03",
+    number: "04",
     title: "Emergency SOS",
     status: "Under Research",
     cta: "Learn More",

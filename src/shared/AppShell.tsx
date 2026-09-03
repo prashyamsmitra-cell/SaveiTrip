@@ -7,14 +7,14 @@ import { Avatar, Brand } from "./ui";
 
 const nav: readonly { to: string; label: string; icon: IconName }[] = [
   { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
-  { to: "/trips/new", label: "Trip consultation", icon: "route" },
-  { to: "/comparison", label: "Market analysis", icon: "scale" },
-  { to: "/prediction", label: "Intelligence", icon: "trend" },
-  { to: "/sos", label: "SOS research", icon: "shield" },
+  { to: "/assistant", label: "Travel Assistant", icon: "sparkles" },
+  { to: "/helpers", label: "Travel Helper", icon: "users" },
+  { to: "/comparison", label: "Market Analysis", icon: "scale" },
+  { to: "/sos", label: "SOS", icon: "shield" },
   { to: "/profile", label: "Profile", icon: "user" }
 ];
 
-export default function AppShell({ children }: { children: ReactNode }) {
+export default function AppShell({ children, fullHeight }: { children: ReactNode; fullHeight?: boolean }) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
@@ -100,7 +100,14 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </nav>
         </div>
       </header>
-      <main id="main-content" className="page-fade mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-12">
+      <main
+        id="main-content"
+        className={
+          fullHeight
+            ? "page-fade flex h-[calc(100vh-4rem)] flex-col overflow-hidden"
+            : "page-fade mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-12"
+        }
+      >
         {children}
       </main>
     </div>

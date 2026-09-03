@@ -7,10 +7,11 @@ import SignupPage from "./auth/SignupPage";
 import ComparisonPage from "./comparison/ComparisonPage";
 import DashboardPage from "./dashboard/DashboardPage";
 import LandingPage from "./LandingPage";
-import PredictionPage from "./prediction/PredictionPage";
 import ProfilePage from "./profile/ProfilePage";
 import SosPage from "./sos/SosPage";
-import TripConsultationPage from "./trips/TripConsultationPage";
+import TravelAssistantPage from "./travelAnalysis/TravelAssistantPage";
+import TravelHelperPage from "./travelHelper/TravelHelperPage";
+import AppShell from "./shared/AppShell";
 import { Brand } from "./shared/ui";
 import { Icon } from "./shared/Icon";
 
@@ -45,12 +46,14 @@ export default function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-          <Route path="/trips/new" element={<ProtectedRoute><TripConsultationPage /></ProtectedRoute>} />
+          <Route path="/assistant" element={<ProtectedRoute><AppShell fullHeight><TravelAssistantPage /></AppShell></ProtectedRoute>} />
+          <Route path="/helpers" element={<ProtectedRoute><TravelHelperPage /></ProtectedRoute>} />
           <Route path="/comparison" element={<ProtectedRoute><ComparisonPage /></ProtectedRoute>} />
-          <Route path="/prediction" element={<ProtectedRoute><PredictionPage /></ProtectedRoute>} />
           <Route path="/sos" element={<ProtectedRoute><SosPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/services" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/trips/new" element={<Navigate to="/assistant" replace />} />
+          <Route path="/prediction" element={<Navigate to="/assistant" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>

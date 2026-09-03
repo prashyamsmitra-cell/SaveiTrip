@@ -1,11 +1,11 @@
 import { useState } from "react";
 import ServiceDetail from "../shared/ServiceDetail";
-import { services } from "../shared/services";
+import { services, getService } from "../shared/services";
 import { Icon } from "../shared/Icon";
 import { Skeleton, Spinner } from "../shared/ui";
 import { searchOffers, unlockAllResults, type ComparisonSearchResult, type TravelQuery } from "./comparisonApi";
 
-const service = services[0];
+const service = getService("comparison")!;
 
 const inr = (value: number) =>
   `₹${value.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
