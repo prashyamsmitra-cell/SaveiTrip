@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ServiceDetail from "../shared/ServiceDetail";
-import { services, getService } from "../shared/services";
+import { getService } from "../shared/services";
 import { Icon } from "../shared/Icon";
 import { Skeleton, Spinner } from "../shared/ui";
 import { searchOffers, unlockAllResults, type ComparisonSearchResult, type TravelQuery } from "./comparisonApi";
