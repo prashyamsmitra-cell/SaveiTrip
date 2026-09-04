@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import AppShell from "../shared/AppShell";
 import { Icon } from "../shared/Icon";
 import { Spinner } from "../shared/ui";
@@ -16,55 +17,60 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 function HelperCard({ helper }: { helper: TravelHelper }) {
-  const initials = helper.name
-    .split(" ")
-    .map((w) => w[0])
-    .join("");
+  const navigate = useNavigate();
 
   return (
-    <article className="card flex flex-col p-5 transition-all hover:shadow-card-hover">
-      <div className="flex items-start gap-3">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-accent-green text-canvas text-sm font-semibold">
-          {initials}
-        </span>
-        <div className="min-w-0 flex-1">
+    <article
+      onClick={() => navigate(`/helpers/${helper.id}`)}
+      className="card group cursor-pointer flex flex-col p-0 overflow-hidden transition-all hover:shadow-card-hover hover:-translate-y-1"
+    >
+      <div className="relative h-44 overflow-hidden">
+        <img
+          src={helper.avatarUrl}
+          alt={helper.name}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="truncate text-sm font-semibold">{helper.name}</h3>
-            {!helper.available && (
-              <span className="badge bg-accent-amber-soft text-accent-amber text-[0.6rem]">Busy</span>
+            <h3 className="text-sm font-semibold text-white drop-shadow-sm">{helper.name}</h3>
+            {helper.isVerified && (
+              <Icon name="shield-check" className="h-3.5 w-3.5 text-accent-green fill-accent-green-soft" />
             )}
           </div>
-          <p className="mt-0.5 text-xs text-ink-soft">{helper.region}</p>
-        </div>
-        <div className="text-right">
           <StarRating rating={helper.rating} />
-          <p className="mt-0.5 text-[0.65rem] text-ink-faint">{helper.reviewCount} reviews</p>
         </div>
+        {!helper.available && (
+          <span className="absolute top-3 right-3 badge bg-accent-amber text-white text-[0.6rem]">Busy</span>
+        )}
       </div>
 
-      <p className="mt-3 text-xs leading-5 text-ink-soft">{helper.experience}</p>
+      <div className="flex flex-col flex-1 p-4">
+        <div className="flex items-center gap-1.5 text-xs text-ink-soft">
+          <Icon name="map-pin" className="h-3 w-3 shrink-0 text-ink-faint" />
+          <span>{helper.location}</span>
+          <span className="text-ink-faint">·</span>
+          <span className="text-accent-green text-[0.65rem] font-medium">
+            {helper.distanceKm} km away
+          </span>
+        </div>
 
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {helper.speciality.map((s) => (
-          <span key={s} className="chip">{s}</span>
-        ))}
-      </div>
+        <p className="mt-2 text-xs leading-5 text-ink-soft line-clamp-2">{helper.bio}</p>
 
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {helper.languages.map((l) => (
-          <span key={l} className="text-[0.65rem] text-ink-faint">{l}</span>
-        ))}
-      </div>
+        <div className="mt-2.5 flex flex-wrap gap-1">
+          {helper.speciality.slice(0, 3).map((s) => (
+            <span key={s} className="chip">{s}</span>
+          ))}
+        </div>
 
-      <div className="mt-4 flex items-center justify-between border-t border-line/70 pt-3">
-        <span className="text-xs font-medium text-accent-green">{helper.priceRange}</span>
-        <button
-          className="btn btn-outline !px-3 !py-1.5 text-xs"
-          disabled={!helper.available}
-        >
-          <Icon name="compass" className="h-3 w-3" />
-          {helper.available ? "Contact" : "Unavailable"}
-        </button>
+        <div className="mt-auto pt-3 flex items-center justify-between border-t border-line/60">
+          <span className="text-xs font-medium text-accent-green">{helper.priceRange}</span>
+          <span className="btn btn-outline !px-3 !py-1.5 text-xs group-hover:bg-ink group-hover:text-canvas group-hover:border-ink transition-colors">
+            <Icon name="compass" className="h-3 w-3" />
+            View Profile
+          </span>
+        </div>
       </div>
     </article>
   );
@@ -129,8 +135,10 @@ export default function TravelHelperPage() {
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {helpers.map((helper) => (
-                <HelperCard key={helper.id} helper={helper} />
+              {helpers.map((helper, i) => (
+                <div key={helper.id} className="helper-card-enter" style={{ animationDelay: `${i * 60}ms` }}>
+                  <HelperCard helper={helper} />
+                </div>
               ))}
             </div>
           )}

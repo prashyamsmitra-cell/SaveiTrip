@@ -162,6 +162,43 @@ const icons: Record<string, ReactNode> = {
       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
     </>
   ),
+  "instagram": (
+    <>
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
+    </>
+  ),
+  "globe": (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M2 12h20" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </>
+  ),
+  "map-pin": (
+    <>
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+      <circle cx="12" cy="10" r="3" />
+    </>
+  ),
+  "message-circle": (
+    <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+  ),
+  "x": (
+    <>
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </>
+  ),
+  "heart": (
+    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+  ),
+  "navigation": (
+    <>
+      <polygon points="3 11 22 2 13 21 11 13 3 11" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof icons;

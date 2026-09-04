@@ -11,6 +11,7 @@ import ProfilePage from "./profile/ProfilePage";
 import SosPage from "./sos/SosPage";
 import TravelAssistantPage from "./travelAnalysis/TravelAssistantPage";
 import TravelHelperPage from "./travelHelper/TravelHelperPage";
+import HelperProfilePage from "./travelHelper/HelperProfilePage";
 import AppShell from "./shared/AppShell";
 import { Brand } from "./shared/ui";
 import { Icon } from "./shared/Icon";
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/assistant" element={<ProtectedRoute><AppShell fullHeight><TravelAssistantPage /></AppShell></ProtectedRoute>} />
           <Route path="/helpers" element={<ProtectedRoute><TravelHelperPage /></ProtectedRoute>} />
+          <Route path="/helpers/:id" element={<ProtectedRoute><HelperProfilePage /></ProtectedRoute>} />
           <Route path="/comparison" element={<ProtectedRoute><ComparisonPage /></ProtectedRoute>} />
           <Route path="/sos" element={<ProtectedRoute><SosPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />

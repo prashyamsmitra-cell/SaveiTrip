@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import {
   listConversations,
   getConversation,
-  sendMessage,
+  sendMessageStreaming,
   deleteConversation,
   type ConversationSummary,
   type ConversationMessage,
@@ -18,13 +18,52 @@ const SUGGESTED_PROMPTS = [
 ];
 
 function renderMarkdown(text: string): string {
-  return text
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/_(.*?)_/g, "<em>$1</em>")
-    .replace(/\n• /g, "\n<li>")
-    .replace(/\n(<li>)/g, "$1")
-    .replace(/\n\n/g, "<br/><br/>")
-    .replace(/\n/g, "<br/>");
+  let html = text;
+
+  // Horizontal rules (---, ***, ___)
+  html = html.replace(/^(\*{3,}|-{3,}|_{3,})\s*$/gm, '<hr class="assistant-hr" />');
+
+  // Headers: ### Title
+  html = html.replace(/^### (.+)$/gm, '<h3 class="assistant-h3">$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h3 class="assistant-h3">$1</h3>');
+  html = html.replace(/^# (.+)$/gm, '<h3 class="assistant-h3">$1</h3>');
+
+  // Bold and italic
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+
+  // Numbered lists: lines starting with "1. ", "2. ", etc.
+  html = html.replace(/(?:^|\n)((?:\d+\.\s+.+(?:\n|$))+)/g, (_match, block: string) => {
+    const items = block.trim().split('\n').map((line: string) => {
+      const cleaned = line.replace(/^\d+\.\s+/, '');
+      return `<li>${cleaned}</li>`;
+    }).join('');
+    return `\n<ol class="assistant-ol">${items}</ol>`;
+  });
+
+  // Unordered bullet lists: lines starting with "- "
+  html = html.replace(/(?:^|\n)((?:- .+(?:\n|$))+)/g, (_match, block: string) => {
+    const items = block.trim().split('\n').map((line: string) => {
+      return `<li>${line.replace(/^- /, '')}</li>`;
+    }).join('');
+    return `\n<ul class="assistant-ul">${items}</ul>`;
+  });
+
+  // Collapse consecutive <br/> between lists
+  html = html.replace(/<\/(ol|ul)>\s*<br\s*\/?>\s*<(ol|ul)/g, '</$1><$2');
+
+  // Double newlines -> paragraph break
+  html = html.replace(/\n\n/g, '</p><p class="assistant-p">');
+
+  // Single newlines -> line break (but not inside tags)
+  html = html.replace(/\n/g, '<br/>');
+
+  // Wrap in paragraph if not already
+  if (!html.startsWith('<')) {
+    html = `<p class="assistant-p">${html}</p>`;
+  }
+
+  return html;
 }
 
 function ToolBadge({ name }: { name: string }) {
@@ -109,9 +148,17 @@ function Sidebar({
           <ul className="space-y-0.5">
             {conversations.map((c) => (
               <li key={c.id}>
-                <button
+                <div
                   onClick={() => onSelect(c.id)}
-                  className={`group/item flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onSelect(c.id);
+                    }
+                  }}
+                  className={`group/item flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                     activeId === c.id
                       ? "bg-ink text-canvas"
                       : "text-ink-soft hover:bg-canvas hover:text-ink"
@@ -131,7 +178,7 @@ function Sidebar({
                   >
                     <Icon name="alert" className="h-3 w-3" />
                   </button>
-                </button>
+                </div>
               </li>
             ))}
           </ul>
@@ -237,47 +284,92 @@ export default function TravelAssistantPage() {
     setLoading(true);
 
     const userMessage: ConversationMessage = {
-      id: `temp_${Date.now()}`,
+      id: `temp_u_${Date.now()}`,
       role: "user",
       content,
       createdAt: new Date().toISOString(),
     };
-    setMessages((prev) => [...prev, userMessage]);
+    const assistantTempId = `temp_a_${Date.now()}`;
+    setMessages((prev) => [
+      ...prev,
+      userMessage,
+      { id: assistantTempId, role: "assistant", content: "", createdAt: new Date().toISOString() },
+    ]);
+
+    let streamedText = "";
+    let fallback = false;
 
     try {
-      const res = await sendMessage(activeConversationId ?? "", content);
+      const result = await sendMessageStreaming(activeConversationId ?? "", content, {
+        onToken: (delta) => {
+          streamedText += delta;
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantTempId ? { ...m, content: streamedText } : m
+            )
+          );
+        },
+        onFallback: () => {
+          fallback = true;
+        },
+      });
+
+      const finalText = fallback
+        ? "I'm sorry, I'm having trouble reaching my travel advisor right now. Please try again in a moment — your trip planning is important to me!"
+        : streamedText;
 
       setMessages((prev) => {
-        const withoutTemp = prev.filter((m) => !m.id.startsWith("temp_"));
-        return [...withoutTemp, res.message];
+        const withoutTemp = prev.filter(
+          (m) => !m.id.startsWith("temp_u_") && !m.id.startsWith("temp_a_")
+        );
+        return [
+          ...withoutTemp,
+          {
+            id: result.messageId || assistantTempId,
+            role: "assistant",
+            content: finalText,
+            createdAt: new Date().toISOString(),
+          },
+        ];
       });
 
       if (!activeConversationId) {
-        setActiveConversationId(res.conversationId);
-      }
-
-      setConversations((prev) => {
-        const exists = prev.find((c) => c.id === res.conversationId);
-        if (exists) {
-          return prev.map((c) =>
-            c.id === res.conversationId
-              ? { ...c, title: res.conversationId === activeConversationId ? c.title : content.length > 50 ? content.slice(0, 47) + "..." : content, updatedAt: new Date().toISOString() }
-              : c
-          );
-        }
-        return [
+        setActiveConversationId(result.conversationId);
+        setConversations((prev) => [
           {
-            id: res.conversationId,
+            id: result.conversationId,
             title: content.length > 50 ? content.slice(0, 47) + "..." : content,
             messageCount: 2,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           },
           ...prev,
+        ]);
+      } else {
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.id === activeConversationId
+              ? { ...c, updatedAt: new Date().toISOString() }
+              : c
+          )
+        );
+      }
+    } catch {
+      streamedText = "I'm sorry, I'm having trouble reaching my travel advisor right now. Please try again in a moment — your trip planning is important to me!";
+      setMessages((prev) => {
+        const withoutTemp = prev.filter(
+          (m) => !m.id.startsWith("temp_u_") && !m.id.startsWith("temp_a_")
+        );
+        return [
+          ...withoutTemp,
+          {
+            id: assistantTempId,
+            role: "assistant",
+            content: streamedText,
+            createdAt: new Date().toISOString(),
+          },
         ];
       });
-    } catch {
-      setMessages((prev) => prev.filter((m) => !m.id.startsWith("temp_")));
     } finally {
       setLoading(false);
     }

@@ -20,6 +20,20 @@ async function authedRequest<T>(path: string, options: RequestInit = {}): Promis
   return response.json() as Promise<T>;
 }
 
+export type HelperPost = {
+  id: string;
+  imageUrl: string;
+  caption: string;
+  likes: number;
+  destination: string;
+  date: string;
+};
+
+export type HelperSocialLinks = {
+  instagram?: string;
+  website?: string;
+};
+
 export type TravelHelper = {
   id: string;
   name: string;
@@ -33,6 +47,15 @@ export type TravelHelper = {
   available: boolean;
   priceRange: string;
   accountType: "VERIFIED" | "DEMO";
+  avatarUrl: string;
+  bio: string;
+  location: string;
+  nearbyDestination: string;
+  distanceKm: number;
+  posts: HelperPost[];
+  socialLinks: HelperSocialLinks;
+  isVerified: boolean;
+  yearsActive: number;
 };
 
 export async function listHelpers() {
