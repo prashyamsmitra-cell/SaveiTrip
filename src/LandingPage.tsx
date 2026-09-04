@@ -79,25 +79,22 @@ function Header() {
   const scrolled = useScrollBelow(20);
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "border-b border-line/70 bg-canvas/92 shadow-sm backdrop-blur-md"
-          : "border-b border-transparent bg-transparent"
-      }`}
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${scrolled
+        ? "border-b border-line/70 bg-canvas/92 shadow-sm backdrop-blur-md"
+        : "border-b border-transparent bg-transparent"
+        }`}
     >
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 md:px-8">
         <Link to="/" aria-label="SaveiTrip home">
           <span
-            className={`inline-flex items-center gap-2.5 font-display text-xl tracking-tight transition-colors ${
-              scrolled ? "text-ink" : "text-canvas"
-            }`}
+            className={`inline-flex items-center gap-2.5 font-display text-xl tracking-tight transition-colors ${scrolled ? "text-ink" : "text-canvas"
+              }`}
           >
             <span
-              className={`grid h-8 w-8 place-items-center rounded-lg transition-colors ${
-                scrolled
-                  ? "bg-accent-green text-canvas"
-                  : "bg-canvas/15 text-canvas ring-1 ring-canvas/40 backdrop-blur-md"
-              }`}
+              className={`grid h-8 w-8 place-items-center rounded-lg transition-colors ${scrolled
+                ? "bg-accent-green text-canvas"
+                : "bg-canvas/15 text-canvas ring-1 ring-canvas/40 backdrop-blur-md"
+                }`}
             >
               <Icon name="compass" className="h-4 w-4" />
             </span>
@@ -112,11 +109,10 @@ function Header() {
             <a
               key={link.href}
               href={link.href}
-              className={`text-sm font-medium transition-colors ${
-                scrolled
-                  ? "text-ink-soft hover:text-ink"
-                  : "text-canvas/85 hover:text-canvas [text-shadow:0_1px_12px_rgba(0,0,0,0.45)]"
-              }`}
+              className={`text-sm font-medium transition-colors ${scrolled
+                ? "text-ink-soft hover:text-ink"
+                : "text-canvas/85 hover:text-canvas [text-shadow:0_1px_12px_rgba(0,0,0,0.45)]"
+                }`}
             >
               {link.label}
             </a>
@@ -126,21 +122,19 @@ function Header() {
         <div className="flex items-center gap-3">
           <Link
             to="/login"
-            className={`hidden rounded-full px-4 py-2 text-sm font-medium transition sm:inline-flex ${
-              scrolled
-                ? "text-ink-soft hover:bg-surface hover:text-ink"
-                : "text-canvas/90 ring-1 ring-canvas/40 backdrop-blur-md hover:bg-canvas/10 [text-shadow:0_1px_12px_rgba(0,0,0,0.45)]"
-            }`}
+            className={`hidden rounded-full px-4 py-2 text-sm font-medium transition sm:inline-flex ${scrolled
+              ? "text-ink-soft hover:bg-surface hover:text-ink"
+              : "text-canvas/90 ring-1 ring-canvas/40 backdrop-blur-md hover:bg-canvas/10 [text-shadow:0_1px_12px_rgba(0,0,0,0.45)]"
+              }`}
           >
             Log in
           </Link>
           <Link
             to="/signup"
-            className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition hover:-translate-y-0.5 ${
-              scrolled
-                ? "bg-ink text-canvas hover:bg-ink/90 shadow-md shadow-ink/20"
-                : "bg-canvas text-ink shadow-lg shadow-ink/30 hover:bg-white"
-            }`}
+            className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition hover:-translate-y-0.5 ${scrolled
+              ? "bg-ink text-canvas hover:bg-ink/90 shadow-md shadow-ink/20"
+              : "bg-canvas text-ink shadow-lg shadow-ink/30 hover:bg-white"
+              }`}
           >
             Explore
             <Icon name="arrow-right" className="h-3.5 w-3.5" />
@@ -165,12 +159,6 @@ function Hero() {
       <div className="absolute inset-0 bg-[radial-gradient(120%_140%_at_75%_110%,rgba(63,107,79,0.35),transparent_55%)]" />
 
       <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 pt-32 md:px-8 md:pb-20">
-        <Reveal>
-          <p className="inline-flex items-center gap-2.5 rounded-full bg-canvas/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.22em] text-canvas/85 ring-1 ring-canvas/25 backdrop-blur-md">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent-amber" />
-            Travel intelligence for India
-          </p>
-        </Reveal>
 
         <Reveal delay={90}>
           <h1 className="font-display mt-6 max-w-4xl text-5xl leading-[1.0] text-canvas sm:text-6xl md:text-7xl lg:text-[5.2rem] [text-shadow:0_3px_30px_rgba(0,0,0,0.45)]">
@@ -178,7 +166,6 @@ function Hero() {
             <em className="text-accent-amber">before you go.</em>
           </h1>
         </Reveal>
-
         <Reveal delay={180}>
           <p className="mt-7 max-w-xl text-lg leading-8 text-canvas/85 [text-shadow:0_1px_16px_rgba(0,0,0,0.5)]">
             SaveiTrip is a premium travel-techn ogy workspace — trip planning, live market
@@ -186,13 +173,12 @@ function Hero() {
             actually travel.
           </p>
         </Reveal>
-
         <Reveal delay={260}>
           <div className="mt-10 max-w-2xl rounded-2xl border border-canvas/20 bg-ink/40 p-3 shadow-2xl shadow-ink/40 backdrop-blur-xl">
             <div className="flex flex-col gap-2 md:flex-row md:items-center">
               <div className="flex flex-1 items-center gap-3 px-3 py-2">
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-canvas/10 text-accent-amber ring-1 ring-canvas/20">
-                  <Icon name="search" className="h-4 w-4" />
+                  <Icon name="compass" className="h-4 w-4" />
                 </span>
                 <div>
                   <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-canvas/55">Destination</p>
@@ -247,12 +233,38 @@ function Hero() {
 
 function TrustStrip() {
   const partners = [
-    { mark: "M", name: "Meridian Routes" },
-    { mark: "N", name: "Northface Travel Co." },
-    { mark: "G", name: "Gharial Ventures" },
-    { mark: "SK", name: "Sattva Koop" },
-    { mark: "C", name: "Circa Himalaya" },
-    { mark: "TS", name: "Tile & Stone Expeditions" }
+    {
+      logo: "https://upload.wikimedia.org/wikipedia/commons/6/61/Makemytrip_logo.svg",
+      name: "MakeMyTrip",
+    },
+    {
+      logo: "https://upload.wikimedia.org/wikipedia/commons/3/32/Goibibo_Logo.svg",
+      name: "Goibibo",
+    },
+    {
+      logo: "https://upload.wikimedia.org/wikipedia/commons/f/f8/EaseMyTrip_Logo.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+      name: "EaseMyTrip",
+    },
+    {
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Ixigo_logo.svg/3840px-Ixigo_logo.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+      name: "ixigo",
+    },
+    {
+      logo: "https://upload.wikimedia.org/wikipedia/commons/f/f8/EaseMyTrip_Logo.svg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+      name: "EaseMyTrip",
+    },
+    {
+      logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdUVqnCTQ0s3YmhbAb5j5ZfAL3KAQUeQLaIwNosnKg8w&s",
+      name: "Yatra",
+    },
+    {
+      logo: "https://wp.logos-download.com/wp-content/uploads/2020/06/Cleartrip_Logo.png?dl",
+      name: "Cleartrip",
+    },
+    {
+      logo: "https://e7.pngegg.com/pngimages/542/120/png-clipart-logo-agoda-com-hotel-brand-travel-agent-hotel-emblem-text.png",
+      name: "Agoda",
+    },
   ];
 
   return (
@@ -267,8 +279,12 @@ function TrustStrip() {
           <div className="marquee-track gap-14 pr-14">
             {[...partners, ...partners].map((partner, i) => (
               <div key={`${partner.name}-${i}`} className="flex shrink-0 items-center gap-3 opacity-70 text-ink-soft">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-line bg-surface font-display text-sm text-ink-soft shadow-sm">
-                  {partner.mark}
+                <span className="flex h-10 w-16 items-center justify-center rounded-lg border border-line bg-surface px-2 shadow-sm">
+                  <img
+                    src={partner.logo}
+                    alt={`${partner.name} logo`}
+                    className="max-h-7 max-w-full object-contain"
+                  />
                 </span>
                 <span className="text-sm font-medium">{partner.name}</span>
               </div>
@@ -285,31 +301,45 @@ function TrustStrip() {
 function DestinationsSection() {
   const places = [
     {
-      img: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=900&q=75",
-      name: "The Taj & Heritage Core",
-      region: "Agra & beyond",
-      widths: "md:col-span-7",
+      img: "https://images.unsplash.com/photo-1696887484490-715e7eb0e682?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      region: "AGRA · MUGHAL HERITAGE",
+      name: "The Taj Mahal",
+      widths: "md:col-span-4",
       aspect: "aspect-[4/5] md:aspect-[4/5]"
     },
     {
-      img: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=900&q=75",
-      name: "High-Altitude Ladakh",
-      region: "Pangong · Nubra · Leh",
-      widths: "md:col-span-5",
+      img: "https://images.unsplash.com/photo-1624890240392-da0b1aa01c90?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      region: "LADAKH · MOUNTAINS & VALLEYS",
+      name: "The Land of High Passes",
+      widths: "md:col-span-4",
       aspect: "aspect-[4/5] md:aspect-[4/5]"
     },
     {
-      img: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1200&q=75",
-      name: "Himalayan Foothills",
-      region: "Hidden valley trails",
-      widths: "md:col-span-5",
+      img: "https://images.unsplash.com/photo-1686472886489-1d2d7e08ff9c?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      region: "MEGHALAYA · NORTHEAST INDIA",
+      name: "Misty Meghalaya",
+      widths: "md:col-span-4",
       aspect: "aspect-[4/5] md:aspect-[4/5]"
     },
     {
-      img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=75",
-      name: "India's Open Roads",
-      region: "Coastlines & ranges",
-      widths: "md:col-span-7",
+      img: "https://images.unsplash.com/photo-1609115771934-4ddf685a4fa2?q=80&w=685&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      region: "KASHMIR · THE HIMALAYAS",
+      name: "Paradise on Earth",
+      widths: "md:col-span-4",
+      aspect: "aspect-[4/5] md:aspect-[4/5]"
+    },
+    {
+      img: "https://plus.unsplash.com/premium_photo-1730035378497-6f182674961c?q=80&w=736&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      region: "ANDAMAN · BAY OF BENGAL",
+      name: "Andaman Islands",
+      widths: "md:col-span-4",
+      aspect: "aspect-[4/5] md:aspect-[4/5]"
+    },
+    {
+      img: "https://images.unsplash.com/photo-1716534134003-ba47907e119b?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      region: "RAJASTHAN · DESERT & HERITAGE",
+      name: "Where Royalty Lives",
+      widths: "md:col-span-4",
       aspect: "aspect-[4/5] md:aspect-[4/5]"
     }
   ];
@@ -333,8 +363,8 @@ function DestinationsSection() {
 
       <div className="mt-14 grid gap-5 md:grid-cols-12">
         {places.map((place, i) => (
-          <Reveal key={place.name} dir="up" delay={i * 80} className={`h-full ${place.widths}`}>
-            <figure className="group relative h-full w-full overflow-hidden rounded-2xl bg-ink">
+          <Reveal key={place.name} dir="up" delay={i * 80} className={place.widths}>
+            <figure className="group relative w-full overflow-hidden rounded-2xl bg-ink">
               <img
                 src={place.img}
                 alt={`${place.name} destination`}
@@ -637,7 +667,7 @@ function PrinciplesSection() {
 
         <div className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-2">
           {principles.map((principle, i) => (
-            <Reveal key={principle.title} dir="up" delay={i * 80} className="h-full">
+            <Reveal key={principle.title} dir="up" delay={i * 80}>
               <div className="group flex h-full flex-col justify-between gap-8 bg-surface p-8 transition-colors hover:bg-canvas md:p-10">
                 <div className="flex items-start justify-between gap-4">
                   <h3 className="font-display text-2xl md:text-3xl">{principle.title}</h3>
@@ -661,12 +691,11 @@ function FinalCta() {
   return (
     <section className="relative overflow-hidden py-24 md:py-32">
       <img
-        src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2200&q=80"
+        src="https://images.unsplash.com/photo-1646327537880-962a5276e4bf?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
         alt="Sunrise over an open valley road"
         className="absolute inset-0 h-full w-full object-cover"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-canvas via-canvas/0 to-canvas/0" />
-      <div className="absolute inset-0 bg-ink/60" />
+      <div className="absolute inset-0 bg-ink/30" />
       <Reveal dir="scale">
         <div className="relative mx-auto max-w-3xl px-6 text-center">
           <p className="inline-flex items-center gap-2.5 rounded-full bg-canvas/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.22em] text-canvas/85 ring-1 ring-canvas/25 backdrop-blur-md">
@@ -729,9 +758,16 @@ function Footer() {
           <div>
             <h4 className="text-xs uppercase tracking-[0.18em] text-ink-faint">Contact</h4>
             <ul className="mt-4 space-y-3 text-sm text-ink-soft">
-              <li>support@saveitrip.com</li>
-              <li>Mon–Fri, 9:00–18:00</li>
-              <li className="text-ink-faint">Delhi, India</li>
+              <li><a
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=saveitrip@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-accent-green"
+              >
+                saveitrip@gmail.com
+              </a></li>
+              <li>Mon–Fri, 9:00–18:00 IST</li>
+              <li className="text-ink-faint">West Bengal, India</li>
             </ul>
           </div>
         </div>
