@@ -116,7 +116,7 @@ export default function LoginPage() {
         Explore with a demo account
       </button>
 
-      <p className="mt-7 text-center text-sm text-ink-soft">
+      <p className="mt-5 text-center text-sm text-ink-soft">
         New to SaveiTrip?{" "}
         <Link to="/signup" className="font-medium text-ink underline underline-offset-4 hover:text-accent-green transition-colors">
           Create an account
@@ -139,12 +139,12 @@ function GoogleMark() {
 
 export function AuthFrame({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return (
-    <div className="grid min-h-screen bg-canvas lg:grid-cols-[1fr_1.05fr]">
+    <div className="grid h-screen overflow-hidden bg-canvas lg:grid-cols-[1fr_1.05fr]">
       <section className="relative hidden overflow-hidden lg:block">
         <img
           className="h-full w-full object-cover"
-          src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80"
-          alt="Warm mountain valley at sunrise"
+          src="https://images.unsplash.com/photo-1524230507669-5ff97982bb5e?q=80&w=664&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="Travel Destination"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/92 via-ink/40 to-ink/30" />
         <Link to="/" className="absolute left-10 top-9">
@@ -168,14 +168,14 @@ export function AuthFrame({ title, subtitle, children }: { title: string; subtit
         </div>
       </section>
 
-      <section className="flex min-h-screen items-center justify-center px-6 py-12">
+      <section className="flex h-screen items-center justify-center overflow-hidden px-6 py-8">
         <div className="w-full max-w-md page-fade">
           <Link to="/" className="lg:hidden">
             <Brand className="text-xl" />
           </Link>
           <h1 className="font-display mt-10 text-4xl leading-[1.05] lg:mt-0 md:text-5xl">{title}</h1>
           <p className="mt-3 leading-7 text-ink-soft">{subtitle}</p>
-          <div className="mt-10">{children}</div>
+          <div className="mt-8">{children}</div>
         </div>
       </section>
     </div>
