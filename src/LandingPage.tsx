@@ -762,7 +762,7 @@ function Footer() {
                 href="https://mail.google.com/mail/?view=cm&fs=1&to=saveitrip@gmail.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="transition-colors hover:text-accent-green"
+                className="inline-block transition-all duration-200 hover:scale-105 hover:text-accent-green hover:underline underline-offset-4"
               >
                 saveitrip@gmail.com
               </a></li>
