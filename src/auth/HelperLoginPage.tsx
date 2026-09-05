@@ -5,6 +5,7 @@ import { useAuth } from "./AuthContext";
 import { Icon } from "../shared/Icon";
 import { Spinner } from "../shared/ui";
 import { AuthFrame, Field, GoogleMark } from "./LoginPage";
+import { getMyHelperProfile } from "../travelHelper/travelHelperApi";
 
 export default function HelperLoginPage() {
   const navigate = useNavigate();
@@ -28,7 +29,8 @@ export default function HelperLoginPage() {
     try {
       const session = await helperLogin({ email, password });
       setSession(session, "helper");
-      navigate("/helper/dashboard");
+      const { profile } = await getMyHelperProfile();
+      navigate(profile ? "/helper/dashboard" : "/helper/profile-setup");
     } catch (error) {
       setError(error instanceof Error ? error.message : "Helper login failed. Please try again.");
     } finally {
@@ -37,14 +39,14 @@ export default function HelperLoginPage() {
   }
 
   return (
-    <AuthFrame title="Welcome back." subtitle="Continue into your travel intelligence workspace.">
+    <AuthFrame compact title="Welcome back." subtitle="Continue into your travel intelligence workspace.">
       <button
         type="button"
         disabled={!googleReady}
         onClick={() => {
           window.location.href = "/api/google/start";
         }}
-        className="btn w-full justify-center border border-line bg-surface-high !text-ink hover:border-ink hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-50"
+        className="btn w-full justify-center border border-line bg-surface-high text-ink! hover:border-ink hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-50"
       >
         {googleReady ? (
           <>
@@ -105,7 +107,8 @@ export default function HelperLoginPage() {
           try {
             const session = await loginAsDemo();
             setSession(session, "helper");
-            navigate("/helper/dashboard");
+            const { profile } = await getMyHelperProfile();
+            navigate(profile ? "/helper/dashboard" : "/helper/profile-setup");
           } catch (error) {
             setError(error instanceof Error ? error.message : "Demo login failed. Please try again.");
           } finally {

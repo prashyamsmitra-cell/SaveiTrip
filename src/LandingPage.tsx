@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { services, statusTone } from "./shared/services";
 import { Brand } from "./shared/ui";
@@ -50,7 +50,7 @@ const navLinks = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-canvas text-ink">
+    <div className="landing-page min-h-screen bg-canvas text-ink">
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
@@ -79,7 +79,7 @@ function Header() {
   const scrolled = useScrollBelow(20);
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${scrolled
+      className={`landing-header fixed inset-x-0 top-0 z-50 transition-all duration-500 ${scrolled
         ? "border-b border-line/70 bg-canvas/92 shadow-sm backdrop-blur-md"
         : "border-b border-transparent bg-transparent"
         }`}
@@ -121,8 +121,8 @@ function Header() {
 
         <div className="flex items-center gap-3">
           <Link
-            to="/login"
-            className={`hidden rounded-full px-4 py-2 text-sm font-medium transition sm:inline-flex ${scrolled
+            to="/choose-login"
+            className={`inline-flex rounded-full px-4 py-2 text-sm font-medium transition ${scrolled
               ? "text-ink-soft hover:bg-surface hover:text-ink"
               : "text-canvas/90 ring-1 ring-canvas/40 backdrop-blur-md hover:bg-canvas/10 [text-shadow:0_1px_12px_rgba(0,0,0,0.45)]"
               }`}
@@ -130,16 +130,7 @@ function Header() {
             Log in
           </Link>
           <Link
-            to="/helper/login"
-            className={`hidden rounded-full px-4 py-2 text-sm font-medium transition md:inline-flex ${scrolled
-              ? "text-ink-soft hover:bg-surface hover:text-ink"
-              : "text-canvas/90 ring-1 ring-canvas/40 backdrop-blur-md hover:bg-canvas/10 [text-shadow:0_1px_12px_rgba(0,0,0,0.45)]"
-              }`}
-          >
-            Helper login
-          </Link>
-          <Link
-            to="/signup"
+            to="/choose-signup"
             className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition hover:-translate-y-0.5 ${scrolled
               ? "bg-ink text-canvas hover:bg-ink/90 shadow-md shadow-ink/20"
               : "bg-canvas text-ink shadow-lg shadow-ink/30 hover:bg-white"
@@ -158,11 +149,11 @@ function Header() {
 
 function Hero() {
   return (
-    <section className="relative flex min-h-dvh items-end overflow-hidden">
+    <section className="landing-hero relative flex min-h-dvh items-end overflow-hidden">
       <img
         src="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=2600&q=80"
         alt="Majestic Himalayan lake at dawn"
-        className="absolute inset-0 h-full w-full object-cover"
+        className="landing-hero-image absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-linear-to-t from-ink/95 via-ink/40 to-ink/20" />
       <div className="absolute inset-0 bg-[radial-gradient(120%_140%_at_75%_110%,rgba(63,107,79,0.35),transparent_55%)]" />
@@ -308,6 +299,53 @@ function TrustStrip() {
 /* ───────────────────────── Destinations ───────────────────────── */
 
 function DestinationsSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    const viewport = viewportRef.current;
+    const track = trackRef.current;
+    if (!section || !viewport || !track) return;
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let frame = 0;
+
+    const updateScrollPosition = () => {
+      frame = 0;
+      if (reducedMotion.matches || window.innerWidth < 768) {
+        track.style.transform = "none";
+        section.style.removeProperty("height");
+        return;
+      }
+
+      const maxShift = Math.max(0, track.scrollWidth - viewport.clientWidth);
+      const travel = window.innerHeight + maxShift;
+      const start = section.offsetTop;
+      const progress = Math.min(1, Math.max(0, (window.scrollY - start) / travel));
+
+      section.style.height = `${travel + window.innerHeight}px`;
+      track.style.transform = `translate3d(${-maxShift * progress}px, 0, 0)`;
+    };
+
+    const requestUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateScrollPosition);
+    };
+
+    requestUpdate();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    reducedMotion.addEventListener("change", requestUpdate);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+      reducedMotion.removeEventListener("change", requestUpdate);
+    };
+  }, []);
+
   const places = [
     {
       img: "https://images.unsplash.com/photo-1696887484490-715e7eb0e682?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -354,7 +392,7 @@ function DestinationsSection() {
   ];
 
   return (
-    <section id="destinations" className="mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-28">
+    <section ref={sectionRef} id="destinations" className="destination-scroll-section mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-28">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <Reveal dir="up">
           <p className="kicker">Curated for India</p>
@@ -370,29 +408,39 @@ function DestinationsSection() {
         </Reveal>
       </div>
 
-      <div className="mt-14 grid gap-5 md:grid-cols-12">
+      <div ref={viewportRef} className="destination-scroll-viewport mt-14 overflow-hidden">
+        <div ref={trackRef} className="destination-scroll-track grid gap-5 md:grid-cols-12">
         {places.map((place, i) => (
           <Reveal key={place.name} dir="up" delay={i * 80} className={place.widths}>
-            <figure className="group relative w-full overflow-hidden rounded-2xl bg-ink">
-              <img
-                src={place.img}
-                alt={`${place.name} destination`}
-                loading="lazy"
-                className={`${place.aspect} w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105`}
-              />
-              <div className="absolute inset-0 bg-linear-to-t from-ink/90 via-ink/15 to-transparent" />
-              <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-7">
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent-amber">{place.region}</p>
-                  <p className="font-display mt-2 text-2xl text-canvas md:text-3xl">{place.name}</p>
-                </div>
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-canvas/15 text-canvas ring-1 ring-canvas/30 backdrop-blur-md transition-transform group-hover:translate-x-1">
-                  <Icon name="arrow-right" className="h-4 w-4" />
-                </span>
-              </figcaption>
-            </figure>
+            <a
+              href={`https://www.google.com/search?q=${encodeURIComponent(`${place.name}, India`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Search Google for ${place.name}`}
+              className="block h-full"
+            >
+              <figure className="group relative w-full overflow-hidden rounded-2xl bg-ink">
+                <img
+                  src={place.img}
+                  alt={`${place.name} destination`}
+                  loading="lazy"
+                  className={`${place.aspect} w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105`}
+                />
+                <div className="absolute inset-0 bg-linear-to-t from-ink/90 via-ink/15 to-transparent" />
+                <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-7">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent-amber">{place.region}</p>
+                    <p className="font-display mt-2 text-2xl text-canvas md:text-3xl">{place.name}</p>
+                  </div>
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-canvas/15 text-canvas ring-1 ring-canvas/30 backdrop-blur-md transition-transform group-hover:translate-x-1">
+                    <Icon name="arrow-right" className="h-4 w-4" />
+                  </span>
+                </figcaption>
+              </figure>
+            </a>
           </Reveal>
         ))}
+        </div>
       </div>
     </section>
   );
@@ -422,7 +470,7 @@ function PlatformSection() {
           </Reveal>
           <Reveal dir="up" delay={90}>
             <PlatformCard
-              icon="basecamp"
+              icon="dashboard"
               number="02"
               title="One place for trip ideas"
               body="Your dashboard is your basecamp: a home for destinations you want to explore, questions you want answered, and plans to revisit."
@@ -514,8 +562,9 @@ function ServicesSection() {
 }
 
 const serviceIcons: Record<string, IconName> = {
+  assistant: "compass",
+  helpers: "users",
   comparison: "scale",
-  prediction: "trend",
   sos: "shield"
 };
 

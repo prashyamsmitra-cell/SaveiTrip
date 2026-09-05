@@ -374,6 +374,37 @@ select:focus-visible {
   }
 }
 
+@keyframes landingHeroImage {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes landingHeaderIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing-page .landing-header {
+  animation: landingHeaderIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.landing-page .landing-hero-image {
+  animation: landingHeroImage 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform;
+}
+
 .page-fade {
   animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -419,6 +450,79 @@ select:focus-visible {
 .reveal.is-visible[data-dir="left"],
 .reveal.is-visible[data-dir="right"] {
   transform: translateX(0);
+}
+
+.landing-page .reveal {
+  transition-duration: 0.85s;
+}
+
+.landing-page .landing-hero .reveal {
+  transform: translateY(42px);
+  transition-duration: 1.05s;
+}
+
+.landing-page .landing-hero .reveal.is-visible {
+  transform: translateY(0);
+}
+
+.landing-page .lift-card {
+  transition-duration: 0.5s;
+}
+
+.landing-page .lift-card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.destination-scroll-viewport {
+  position: relative;
+}
+
+.destination-scroll-track {
+  will-change: transform;
+}
+
+@media (min-width: 768px) {
+  .destination-scroll-viewport {
+    position: sticky;
+    top: 0;
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+  }
+
+  .destination-scroll-track {
+    display: flex;
+    width: max-content;
+    gap: 1.25rem;
+  }
+
+  .destination-scroll-track > .reveal {
+    flex: 0 0 clamp(20rem, 29vw, 24rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .destination-scroll-track {
+    transform: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .landing-page .reveal {
+    transform: translateY(18px);
+  }
+
+  .landing-page .landing-hero .reveal {
+    transform: translateY(28px);
+  }
+
+  .landing-page .reveal[data-dir="left"] {
+    transform: translateX(-18px);
+  }
+
+  .landing-page .reveal[data-dir="right"] {
+    transform: translateX(18px);
+  }
 }
 
 /* ─── Assistant Message Prose ─── */

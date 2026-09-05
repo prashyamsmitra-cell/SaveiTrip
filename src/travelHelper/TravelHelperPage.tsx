@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AppShell from "../shared/AppShell";
+import { useAuth } from "../auth/AuthContext";
 import { Icon } from "../shared/Icon";
-import { Spinner } from "../shared/ui";
+import { Avatar, Spinner } from "../shared/ui";
 import { listHelpers, searchHelpers, type TravelHelper } from "./travelHelperApi";
 
 const REGIONS = ["All", "Sikkim", "Kerala", "Rajasthan", "Ladakh", "Darjeeling", "Goa"];
@@ -25,12 +26,18 @@ function HelperCard({ helper }: { helper: TravelHelper }) {
       className="card group cursor-pointer flex flex-col p-0 overflow-hidden transition-all hover:shadow-card-hover hover:-translate-y-1"
     >
       <div className="relative h-44 overflow-hidden">
-        <img
-          src={helper.avatarUrl}
-          alt={helper.name}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-        />
+        {helper.avatarUrl ? (
+          <img
+            src={helper.avatarUrl}
+            alt={helper.name}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <div className="grid h-full w-full place-items-center bg-accent-green-soft">
+            <Avatar name={helper.name} className="h-20 w-20 text-2xl" />
+          </div>
+        )}
         <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
         <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
           <div className="flex items-center gap-2">
@@ -77,11 +84,14 @@ function HelperCard({ helper }: { helper: TravelHelper }) {
 }
 
 export default function TravelHelperPage() {
+  const { user, loading: authLoading } = useAuth();
   const [helpers, setHelpers] = useState<TravelHelper[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeRegion, setActiveRegion] = useState("All");
 
   useEffect(() => {
+    if (authLoading || !user) return;
+
     setLoading(true);
     const request =
       activeRegion === "All"
@@ -92,7 +102,7 @@ export default function TravelHelperPage() {
       .then((res) => setHelpers(res.helpers))
       .catch(() => setHelpers([]))
       .finally(() => setLoading(false));
-  }, [activeRegion]);
+  }, [activeRegion, authLoading, user]);
 
   return (
     <AppShell>

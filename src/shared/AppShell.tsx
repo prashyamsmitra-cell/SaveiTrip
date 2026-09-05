@@ -49,6 +49,7 @@ export default function AppShell({ children, fullHeight, helperMode = false }: {
                 <NavLink
                   key={item.to}
                   to={item.to}
+                  end={item.to === "/helpers"}
                   className={({ isActive }) =>
                     `inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[0.95rem] font-medium transition-colors ${
                       isActive

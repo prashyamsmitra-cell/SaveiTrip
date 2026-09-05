@@ -31,7 +31,7 @@ export default function SignupPage() {
   }
 
   return (
-    <AuthFrame title="Create your workspace." subtitle="Save trip ideas now. Connect intelligence services as they launch.">
+    <AuthFrame compact title="Create your workspace." subtitle="Save trip ideas now. Connect intelligence services as they launch.">
       <form onSubmit={handleSubmit} className="space-y-4">
         <Field label="Name" type="text" value={name} onChange={setName} placeholder="Prashyam" autoComplete="name" />
         <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" autoComplete="email" />

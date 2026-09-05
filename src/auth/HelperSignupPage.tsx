@@ -31,7 +31,7 @@ export default function HelperSignupPage() {
   }
 
   return (
-    <AuthFrame title="Create helper account." subtitle="Start with the basics. Shape your public helper profile next.">
+    <AuthFrame compact title="Create helper account." subtitle="Start with the basics. Shape your public helper profile next.">
       <form onSubmit={handleSubmit} className="space-y-4">
         <Field label="Name" type="text" value={name} onChange={setName} placeholder="Prashyam" autoComplete="name" />
         <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" autoComplete="email" />

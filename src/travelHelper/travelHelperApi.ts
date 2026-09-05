@@ -58,6 +58,10 @@ export type TravelHelper = {
   yearsActive: number;
 };
 
+export type TravelHelperProfileInput = Omit<TravelHelper, "id" | "rating" | "reviewCount" | "posts" | "distanceKm" | "isVerified" | "accountType"> & {
+  username?: string;
+};
+
 export async function listHelpers() {
   return authedRequest<{ helpers: TravelHelper[] }>("/api/helpers");
 }
@@ -72,4 +76,15 @@ export async function searchHelpers(region?: string, speciality?: string) {
 
 export async function getHelper(id: string) {
   return authedRequest<{ helper: TravelHelper }>(`/api/helpers/${id}`);
+}
+
+export async function getMyHelperProfile() {
+  return authedRequest<{ profile: TravelHelper | null }>('/api/helpers/me/profile');
+}
+
+export async function saveMyHelperProfile(input: TravelHelperProfileInput) {
+  return authedRequest<{ profile: TravelHelper }>('/api/helpers/me/profile', {
+    method: 'PATCH',
+    body: JSON.stringify(input)
+  });
 }

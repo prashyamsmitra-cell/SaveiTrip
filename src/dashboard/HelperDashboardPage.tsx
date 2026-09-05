@@ -7,7 +7,7 @@ const actions = [
   {
     title: "Manage your profile",
     summary: "Keep your destination, bio, and contact details ready for travelers.",
-    to: "/profile",
+    to: "/helper/profile-setup",
     label: "Open profile",
     icon: "user" as const
   },
@@ -47,7 +47,7 @@ export default function HelperDashboardPage() {
               Help travelers make better decisions with practical local insight, timely alerts, and a profile they can trust.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/profile" className="btn btn-canvas">
+              <Link to="/helper/profile-setup" className="btn btn-canvas">
                 <Icon name="user" className="h-4 w-4" />
                 Complete your profile
               </Link>

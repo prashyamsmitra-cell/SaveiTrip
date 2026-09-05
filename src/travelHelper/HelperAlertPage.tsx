@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Icon } from "../shared/Icon";
 import { useAuth } from "../auth/AuthContext";
 import { Spinner } from "../shared/ui";
+import AppShell from "../shared/AppShell";
 
 type AlertSeverity = "calamity" | "inconvenience";
 type AlertCategory = "weather" | "transport" | "accommodation" | "safety" | "other";
@@ -37,7 +38,7 @@ export default function HelperAlertPage() {
     setError("");
     setLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/helpers/alert`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL ?? ""}/api/helpers/alert`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -73,7 +74,8 @@ export default function HelperAlertPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-canvas px-6">
+      <AppShell helperMode>
+        <div className="flex min-h-[50vh] items-center justify-center px-6">
         <div className="bg-surface-high rounded-xl p-8 max-w-md w-full text-center">
           <Icon name="check-circle" className="h-12 w-12 text-accent-green mx-auto mb-4" />
           <h2 className="font-display text-2xl leading-tight mb-2">Alert Raised Successfully</h2>
@@ -82,12 +84,14 @@ export default function HelperAlertPage() {
             <Icon name="arrow-left" className="h-3.5 w-3.5 me-2" /> Back to Helpers
           </button>
         </div>
-      </div>
+        </div>
+      </AppShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-canvas px-6 py-8">
+    <AppShell helperMode>
+      <div className="mx-auto w-full max-w-2xl">
       <div className="max-w-md mx-auto bg-surface-high rounded-xl p-8">
         <h2 className="font-display text-2xl leading-tight mb-6">Raise Calamity Alert</h2>
 
@@ -174,6 +178,7 @@ export default function HelperAlertPage() {
           </button>
         </form>
       </div>
-    </div>
+      </div>
+    </AppShell>
   );
 }

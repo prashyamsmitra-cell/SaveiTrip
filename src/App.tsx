@@ -18,6 +18,7 @@ import TravelAssistantPage from "./travelAnalysis/TravelAssistantPage";
 import TravelHelperPage from "./travelHelper/TravelHelperPage";
 import HelperProfilePage from "./travelHelper/HelperProfilePage";
 import HelperAlertPage from "./travelHelper/HelperAlertPage";
+import AuthChoicePage from "./auth/AuthChoicePage";
 import AppShell from "./shared/AppShell";
 import { Brand } from "./shared/ui";
 import { Icon } from "./shared/Icon";
@@ -51,6 +52,8 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/choose-login" element={<AuthChoicePage mode="login" />} />
+          <Route path="/choose-signup" element={<AuthChoicePage mode="signup" />} />
           <Route path="/helper/signup" element={<HelperSignupPage />} />
           <Route path="/helper/profile-setup" element={<ProtectedRoute><HelperProfileSetupPage /></ProtectedRoute>} />
           <Route path="/helper/login" element={<HelperLoginPage />} />

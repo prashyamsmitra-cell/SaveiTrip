@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AppShell from "../shared/AppShell";
+import { useAuth } from "../auth/AuthContext";
 import { Icon } from "../shared/Icon";
-import { Spinner } from "../shared/ui";
+import { Avatar, Spinner } from "../shared/ui";
 import { getHelper, type TravelHelper, type HelperPost } from "./travelHelperApi";
 
 /* ─── Post Detail Modal ─── */
 function PostDetail({ post, onClose }: { post: HelperPost; onClose: () => void }) {
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 z-60 flex items-center justify-center bg-black/70 p-4"
       onClick={onClose}
     >
       <div
@@ -47,20 +48,21 @@ function PostDetail({ post, onClose }: { post: HelperPost; onClose: () => void }
 export default function HelperProfilePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [helper, setHelper] = useState<TravelHelper | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [selectedPost, setSelectedPost] = useState<HelperPost | null>(null);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || authLoading || !user) return;
     setLoading(true);
     setNotFound(false);
     getHelper(id)
       .then((res) => setHelper(res.helper))
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [authLoading, id, user]);
 
   if (loading) {
     return (
@@ -96,7 +98,7 @@ export default function HelperProfilePage() {
       <div className="page-fade">
         {/* ─── Sticky Top Bar ─── */}
         <div className="ig-topbar">
-          <button onClick={() => navigate("/helpers")} className="btn btn-ghost !p-2 !rounded-full">
+          <button onClick={() => navigate("/helpers")} className="btn btn-ghost p-2! rounded-full!">
             <Icon name="arrow-left" className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2 min-w-0">
@@ -109,11 +111,15 @@ export default function HelperProfilePage() {
 
         {/* ─── Profile Header ─── */}
         <div className="ig-profile-header">
-          <div className="ig-avatar-wrap">
-            <div className="helper-avatar-ring">
-              <img src={helper.avatarUrl} alt={helper.name} className="helper-avatar-img" />
+            <div className="ig-avatar-wrap">
+              {helper.avatarUrl ? (
+                <div className="helper-avatar-ring">
+                  <img src={helper.avatarUrl} alt={helper.name} className="helper-avatar-img" />
+                </div>
+              ) : (
+                <Avatar name={helper.name} className="h-20 w-20 text-2xl" />
+              )}
             </div>
-          </div>
           <div className="ig-stats">
             <div className="ig-stat">
               <span className="ig-stat-num">{helper.posts.length}</span>

@@ -55,7 +55,7 @@ export default function HelperAuthPage() {
   }
 
   return (
-    <AuthFrame title="Welcome back." subtitle="Continue into your travel intelligence workspace.">
+    <AuthFrame compact title="Welcome back." subtitle="Continue into your travel intelligence workspace.">
       <h2 className="font-display text-2xl leading-tight mb-6 text-center">Helper Access</h2>
 
       {mode === 'login' && loginError && (

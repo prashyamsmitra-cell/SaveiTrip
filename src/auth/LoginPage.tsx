@@ -144,9 +144,9 @@ export function GoogleMark() {
 }
 
 /* ─── AuthFrame Component ──────────────────────────────────────────────────────────── */
-export function AuthFrame({ title, subtitle, children, compact = false }: { title: string; subtitle: string; children: ReactNode; compact?: boolean }) {
+export function AuthFrame({ title, subtitle, children, compact = true }: { title: string; subtitle: string; children: ReactNode; compact?: boolean }) {
   return (
-    <div className="grid min-h-screen bg-canvas lg:grid-cols-[1fr_1.05fr]">
+    <div className={`grid bg-canvas lg:grid-cols-[1fr_1.05fr] ${compact ? "h-screen max-h-screen overflow-hidden" : "min-h-screen"}`}>
       <section className="relative hidden min-h-screen overflow-hidden lg:block">
         <img
           className="h-full w-full object-cover"
@@ -175,7 +175,11 @@ export function AuthFrame({ title, subtitle, children, compact = false }: { titl
         </div>
       </section>
 
-      <section className={`flex min-h-[100dvh] justify-center px-6 ${compact ? "items-center overflow-hidden py-5 lg:py-8" : "items-start overflow-y-auto py-8 lg:items-center lg:py-12"}`}>
+      <section className={`relative flex justify-center px-6 ${compact ? "h-dvh max-h-dvh min-h-0 items-center overflow-hidden py-4 lg:py-6" : "min-h-dvh items-start overflow-y-auto py-8 lg:items-center lg:py-12"}`}>
+        <Link to="/" className="absolute right-5 top-5 inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-high px-3 py-2 text-xs font-medium text-ink-soft shadow-sm transition-colors hover:border-ink hover:text-ink lg:right-8 lg:top-8">
+          <Icon name="arrow-left" className="h-3.5 w-3.5" />
+          Back to home
+        </Link>
         <div className={`w-full page-fade ${compact ? "max-w-sm" : "max-w-md"}`}>
           <Link to="/" className="lg:hidden">
             <Brand className="text-xl" />
