@@ -5,7 +5,7 @@ import { useAuth } from "../auth/AuthContext";
 import { Icon, type IconName } from "./Icon";
 import { Avatar, Brand } from "./ui";
 
-const nav: readonly { to: string; label: string; icon: IconName }[] = [
+const travelerNav: readonly { to: string; label: string; icon: IconName }[] = [
   { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
   { to: "/assistant", label: "Travel Assistant", icon: "sparkles" },
   { to: "/helpers", label: "Travel Helper", icon: "users" },
@@ -14,9 +14,18 @@ const nav: readonly { to: string; label: string; icon: IconName }[] = [
   { to: "/profile", label: "Profile", icon: "user" }
 ];
 
-export default function AppShell({ children, fullHeight }: { children: ReactNode; fullHeight?: boolean }) {
+const helperNav: readonly { to: string; label: string; icon: IconName }[] = [
+  { to: "/helper/dashboard", label: "Helper home", icon: "dashboard" },
+  { to: "/helpers", label: "Helper network", icon: "users" },
+  { to: "/helpers/alert", label: "Raise alert", icon: "shield" },
+  { to: "/profile", label: "My profile", icon: "user" }
+];
+
+export default function AppShell({ children, fullHeight, helperMode = false }: { children: ReactNode; fullHeight?: boolean; helperMode?: boolean }) {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isHelper } = useAuth();
+  const showHelperNavigation = helperMode || isHelper;
+  const nav = showHelperNavigation ? helperNav : travelerNav;
 
   async function handleLogout() {
     await logout();
@@ -32,7 +41,7 @@ export default function AppShell({ children, fullHeight }: { children: ReactNode
       <header className="sticky top-0 z-40 border-b border-line/80 bg-canvas/90 backdrop-blur-md">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <div className="flex h-16 items-center justify-between gap-4">
-            <NavLink to="/dashboard" className="shrink-0">
+            <NavLink to={showHelperNavigation ? "/helper/dashboard" : "/dashboard"} className="shrink-0">
               <Brand />
             </NavLink>
             <nav className="hidden items-center gap-1.5 lg:flex">
@@ -64,7 +73,7 @@ export default function AppShell({ children, fullHeight }: { children: ReactNode
               <button
                 onClick={handleLogout}
                 aria-label="Log out"
-                className="btn btn-ghost !px-3"
+                className="btn btn-ghost px-3!"
               >
                 <Icon name="logout" className="h-4 w-4" />
               </button>
@@ -74,13 +83,13 @@ export default function AppShell({ children, fullHeight }: { children: ReactNode
               <button
                 onClick={handleLogout}
                 aria-label="Log out"
-                className="btn btn-ghost !px-2.5"
+                className="btn btn-ghost px-2.5!"
               >
                 <Icon name="logout" className="h-4 w-4" />
               </button>
             </div>
           </div>
-          <nav className="-mx-1 mb-3 flex gap-1.5 overflow-x-auto pb-1 lg:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <nav className="-mx-1 mb-3 flex gap-1.5 overflow-x-auto pb-1 lg:hidden [-ms-overflow-style:none] scrollbar-none [&::-webkit-scrollbar]:hidden">
             {nav.map((item) => (
               <NavLink
                 key={item.to}

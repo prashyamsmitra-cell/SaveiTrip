@@ -36,14 +36,14 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthFrame title="Welcome back." subtitle="Continue into your travel intelligence workspace.">
+    <AuthFrame compact title="Welcome back." subtitle="Continue into your travel intelligence workspace.">
       <button
         type="button"
         disabled={!googleReady}
         onClick={() => {
           window.location.href = "/api/google/start";
         }}
-        className="btn w-full justify-center border border-line bg-surface-high !text-ink hover:border-ink hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-50"
+        className="btn w-full justify-center border border-line bg-surface-high text-ink! hover:border-ink hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-50"
       >
         {googleReady ? (
           <>
@@ -113,7 +113,7 @@ export default function LoginPage() {
         }}
         className="btn btn-soft-green mt-4 w-full justify-center"
       >
-        Explore with a demo account
+        Log in as dummy traveler
       </button>
 
       <p className="mt-5 text-center text-sm text-ink-soft">
@@ -122,11 +122,17 @@ export default function LoginPage() {
           Create an account
         </Link>
       </p>
+      <p className="mt-2 text-center text-sm text-ink-soft">
+        Are you a travel helper?{" "}
+        <Link to="/helper/login" className="font-medium text-ink underline underline-offset-4 hover:text-accent-green transition-colors">
+          Use helper login
+        </Link>
+      </p>
     </AuthFrame>
   );
 }
 
-function GoogleMark() {
+export function GoogleMark() {
   return (
     <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
       <path
@@ -137,16 +143,17 @@ function GoogleMark() {
   );
 }
 
-export function AuthFrame({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
+/* ─── AuthFrame Component ──────────────────────────────────────────────────────────── */
+export function AuthFrame({ title, subtitle, children, compact = false }: { title: string; subtitle: string; children: ReactNode; compact?: boolean }) {
   return (
-    <div className="grid h-screen overflow-hidden bg-canvas lg:grid-cols-[1fr_1.05fr]">
-      <section className="relative hidden overflow-hidden lg:block">
+    <div className="grid min-h-screen bg-canvas lg:grid-cols-[1fr_1.05fr]">
+      <section className="relative hidden min-h-screen overflow-hidden lg:block">
         <img
           className="h-full w-full object-cover"
           src="https://images.unsplash.com/photo-1524230507669-5ff97982bb5e?q=80&w=664&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="Travel Destination"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/92 via-ink/40 to-ink/30" />
+        <div className="absolute inset-0 bg-linear-to-t from-ink/92 via-ink/40 to-ink/30" />
         <Link to="/" className="absolute left-10 top-9">
           <Brand className="text-xl text-canvas" />
         </Link>
@@ -168,20 +175,21 @@ export function AuthFrame({ title, subtitle, children }: { title: string; subtit
         </div>
       </section>
 
-      <section className="flex h-screen items-center justify-center overflow-hidden px-6 py-8">
-        <div className="w-full max-w-md page-fade">
+      <section className={`flex min-h-[100dvh] justify-center px-6 ${compact ? "items-center overflow-hidden py-5 lg:py-8" : "items-start overflow-y-auto py-8 lg:items-center lg:py-12"}`}>
+        <div className={`w-full page-fade ${compact ? "max-w-sm" : "max-w-md"}`}>
           <Link to="/" className="lg:hidden">
             <Brand className="text-xl" />
           </Link>
-          <h1 className="font-display mt-10 text-4xl leading-[1.05] lg:mt-0 md:text-5xl">{title}</h1>
-          <p className="mt-3 leading-7 text-ink-soft">{subtitle}</p>
-          <div className="mt-8">{children}</div>
+          <h1 className={`font-display leading-[1.05] ${compact ? "mt-5 text-3xl lg:mt-0 md:text-4xl" : "mt-8 text-4xl lg:mt-0 md:text-5xl"}`}>{title}</h1>
+          <p className={`text-ink-soft ${compact ? "mt-2 leading-6" : "mt-3 leading-7"}`}>{subtitle}</p>
+          <div className={compact ? "mt-5" : "mt-7"}>{children}</div>
         </div>
       </section>
     </div>
   );
 }
 
+/* ─── Field Component ──────────────────────────────────────────────────────────── */
 export function Field({
   label,
   type,

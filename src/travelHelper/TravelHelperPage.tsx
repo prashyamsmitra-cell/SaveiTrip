@@ -31,7 +31,7 @@ function HelperCard({ helper }: { helper: TravelHelper }) {
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
         <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold text-white drop-shadow-sm">{helper.name}</h3>
@@ -66,7 +66,7 @@ function HelperCard({ helper }: { helper: TravelHelper }) {
 
         <div className="mt-auto pt-3 flex items-center justify-between border-t border-line/60">
           <span className="text-xs font-medium text-accent-green">{helper.priceRange}</span>
-          <span className="btn btn-outline !px-3 !py-1.5 text-xs group-hover:bg-ink group-hover:text-canvas group-hover:border-ink transition-colors">
+          <span className="btn btn-outline px-3! py-1.5! text-xs group-hover:bg-ink group-hover:text-canvas group-hover:border-ink transition-colors">
             <Icon name="compass" className="h-3 w-3" />
             View Profile
           </span>

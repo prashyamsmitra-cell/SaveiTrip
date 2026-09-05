@@ -74,6 +74,10 @@ export default function DashboardPage() {
                 <Icon name="scale" className="h-4 w-4" />
                 Compare live prices
               </Link>
+              <Link to="/helper/signup" className="btn btn-outline-light">
+                <Icon name="users" className="h-4 w-4" />
+                Become a travel helper
+              </Link>
             </div>
             <div className="mt-10 flex flex-wrap items-center gap-x-7 gap-y-3 border-t border-canvas/15 pt-6 text-[0.8rem] text-canvas/65">
               <span className="inline-flex items-center gap-2">
@@ -96,7 +100,7 @@ export default function DashboardPage() {
               alt="Himalayan road and mountain landscape"
               className="absolute inset-0 h-full w-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-ink/85 from-25% via-ink/30 to-transparent lg:bg-gradient-to-r lg:from-ink/65 lg:via-transparent lg:to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-ink/85 from-25% via-ink/30 to-transparent lg:bg-linear-to-r lg:from-ink/65 lg:via-transparent lg:to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-canvas/55">Workspace status</p>
               <p className="font-display mt-1.5 text-2xl">Travel Assistant live</p>
@@ -122,7 +126,7 @@ export default function DashboardPage() {
           {features.map((feature) => (
             <article
               key={feature.title}
-              className="card group flex min-h-[16rem] flex-col p-6 hover:shadow-card-hover"
+              className="card group flex min-h-64 flex-col p-6 hover:shadow-card-hover"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="grid h-10 w-10 place-items-center rounded-lg bg-canvas text-ink-faint transition-colors group-hover:bg-accent-green-soft group-hover:text-accent-green">

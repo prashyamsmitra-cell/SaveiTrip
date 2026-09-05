@@ -4,14 +4,20 @@ import GoogleCallbackPage from "./auth/GoogleCallbackPage";
 import LoginPage from "./auth/LoginPage";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import SignupPage from "./auth/SignupPage";
+import HelperSignupPage from "./auth/HelperSignupPage";
+import HelperProfileSetupPage from "./auth/HelperProfileSetupPage";
+import HelperAuthPage from "./auth/HelperAuthPage";
+import HelperLoginPage from "./auth/HelperLoginPage";
 import ComparisonPage from "./comparison/ComparisonPage";
 import DashboardPage from "./dashboard/DashboardPage";
+import HelperDashboardPage from "./dashboard/HelperDashboardPage";
 import LandingPage from "./LandingPage";
 import ProfilePage from "./profile/ProfilePage";
 import SosPage from "./sos/SosPage";
 import TravelAssistantPage from "./travelAnalysis/TravelAssistantPage";
 import TravelHelperPage from "./travelHelper/TravelHelperPage";
 import HelperProfilePage from "./travelHelper/HelperProfilePage";
+import HelperAlertPage from "./travelHelper/HelperAlertPage";
 import AppShell from "./shared/AppShell";
 import { Brand } from "./shared/ui";
 import { Icon } from "./shared/Icon";
@@ -45,11 +51,17 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/helper/signup" element={<HelperSignupPage />} />
+          <Route path="/helper/profile-setup" element={<ProtectedRoute><HelperProfileSetupPage /></ProtectedRoute>} />
+          <Route path="/helper/login" element={<HelperLoginPage />} />
+          <Route path="/helper/auth" element={<ProtectedRoute><HelperAuthPage /></ProtectedRoute>} />
           <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/helper/dashboard" element={<ProtectedRoute><HelperDashboardPage /></ProtectedRoute>} />
           <Route path="/assistant" element={<ProtectedRoute><AppShell fullHeight><TravelAssistantPage /></AppShell></ProtectedRoute>} />
           <Route path="/helpers" element={<ProtectedRoute><TravelHelperPage /></ProtectedRoute>} />
           <Route path="/helpers/:id" element={<ProtectedRoute><HelperProfilePage /></ProtectedRoute>} />
+          <Route path="/helpers/alert" element={<ProtectedRoute><HelperAlertPage /></ProtectedRoute>} />
           <Route path="/comparison" element={<ProtectedRoute><ComparisonPage /></ProtectedRoute>} />
           <Route path="/sos" element={<ProtectedRoute><SosPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />

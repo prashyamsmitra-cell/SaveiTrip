@@ -130,6 +130,15 @@ function Header() {
             Log in
           </Link>
           <Link
+            to="/helper/login"
+            className={`hidden rounded-full px-4 py-2 text-sm font-medium transition md:inline-flex ${scrolled
+              ? "text-ink-soft hover:bg-surface hover:text-ink"
+              : "text-canvas/90 ring-1 ring-canvas/40 backdrop-blur-md hover:bg-canvas/10 [text-shadow:0_1px_12px_rgba(0,0,0,0.45)]"
+              }`}
+          >
+            Helper login
+          </Link>
+          <Link
             to="/signup"
             className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition hover:-translate-y-0.5 ${scrolled
               ? "bg-ink text-canvas hover:bg-ink/90 shadow-md shadow-ink/20"
@@ -149,19 +158,19 @@ function Header() {
 
 function Hero() {
   return (
-    <section className="relative flex min-h-[100dvh] items-end overflow-hidden">
+    <section className="relative flex min-h-dvh items-end overflow-hidden">
       <img
         src="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=2600&q=80"
         alt="Majestic Himalayan lake at dawn"
         className="absolute inset-0 h-full w-full object-cover"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/40 to-ink/20" />
+      <div className="absolute inset-0 bg-linear-to-t from-ink/95 via-ink/40 to-ink/20" />
       <div className="absolute inset-0 bg-[radial-gradient(120%_140%_at_75%_110%,rgba(63,107,79,0.35),transparent_55%)]" />
 
       <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 pt-32 md:px-8 md:pb-20">
 
         <Reveal delay={90}>
-          <h1 className="font-display mt-6 max-w-4xl text-5xl leading-[1.0] text-canvas sm:text-6xl md:text-7xl lg:text-[5.2rem] [text-shadow:0_3px_30px_rgba(0,0,0,0.45)]">
+          <h1 className="font-display mt-6 max-w-4xl text-5xl leading-none text-canvas sm:text-6xl md:text-7xl lg:text-[5.2rem] [text-shadow:0_3px_30px_rgba(0,0,0,0.45)]">
             Know where you're going,{" "}
             <em className="text-accent-amber">before you go.</em>
           </h1>
@@ -274,8 +283,8 @@ function TrustStrip() {
           Guiding work informed by leading travel research
         </p>
         <div className="relative mt-8 overflow-hidden">
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-canvas to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-canvas to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-linear-to-r from-canvas to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-linear-to-l from-canvas to-transparent" />
           <div className="marquee-track gap-14 pr-14">
             {[...partners, ...partners].map((partner, i) => (
               <div key={`${partner.name}-${i}`} className="flex shrink-0 items-center gap-3 opacity-70 text-ink-soft">
@@ -371,7 +380,7 @@ function DestinationsSection() {
                 loading="lazy"
                 className={`${place.aspect} w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105`}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/15 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-ink/90 via-ink/15 to-transparent" />
               <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-7">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent-amber">{place.region}</p>
@@ -553,7 +562,7 @@ function ExperienceBand() {
         alt="Himalayan mountain road at golden hour"
         className="absolute inset-0 h-full w-full object-cover opacity-40"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/40" />
+      <div className="absolute inset-0 bg-linear-to-r from-ink via-ink/85 to-ink/40" />
       <div className="relative mx-auto max-w-7xl px-5 md:px-8">
         <Reveal dir="up">
           <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-accent-amber">
@@ -709,12 +718,20 @@ function FinalCta() {
             the product with one click.
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/signup" className="btn btn-canvas !px-7 !py-3.5 text-base">
+            <Link to="/signup" className="btn btn-canvas px-7! py-3.5! text-base">
               Get started
               <Icon name="arrow-right" className="h-4 w-4" />
             </Link>
-            <Link to="/login" className="btn btn-outline-light !px-7 !py-3.5 text-base">
+            <Link to="/login" className="btn btn-outline-light px-7! py-3.5! text-base">
               Explore the demo
+            </Link>
+            <Link to="/helper/signup" className="btn btn-outline-light px-7! py-3.5! text-base">
+              Become a travel helper
+              <Icon name="users" className="h-4 w-4" />
+            </Link>
+            <Link to="/helper/login" className="btn btn-outline-light px-7! py-3.5! text-base">
+              Helper login
+              <Icon name="users" className="h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -751,6 +768,7 @@ function Footer() {
             <h4 className="text-xs uppercase tracking-[0.18em] text-ink-faint">Account</h4>
             <ul className="mt-4 space-y-3 text-sm text-ink-soft">
               <li><Link to="/login" className="transition-colors hover:text-ink">Log in</Link></li>
+              <li><Link to="/helper/login" className="transition-colors hover:text-ink">Helper login</Link></li>
               <li><Link to="/signup" className="transition-colors hover:text-ink">Create account</Link></li>
               <li><a href="#platform" className="transition-colors hover:text-ink">The platform</a></li>
             </ul>

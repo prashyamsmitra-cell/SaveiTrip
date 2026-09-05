@@ -151,11 +151,15 @@ export default function HelperProfilePage() {
           )}
         </div>
 
-        {/* ─── Action Buttons ─── */}
+        {/* ─── Raise Alert Button ─── */}
         <div className="ig-actions">
-          <button className="btn btn-accent ig-btn-primary" disabled={!helper.available}>
-            <Icon name="message-circle" className="h-3.5 w-3.5" />
-            {helper.available ? "Message" : "Unavailable"}
+          <button
+            className="btn btn-accent ig-btn-primary"
+            disabled={!helper.available}
+            onClick={() => navigate("/helpers/alert")}
+          >
+            <Icon name="alert" className="h-3.5 w-3.5" />
+            {helper.available ? "Raise Alert" : "Unavailable"}
           </button>
           <button className="btn btn-outline ig-btn-secondary" disabled={!helper.available}>
             <Icon name="compass" className="h-3.5 w-3.5" />

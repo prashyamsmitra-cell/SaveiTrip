@@ -6,6 +6,10 @@ export type User = {
   email: string;
   authProvider: AuthProvider;
   googleId: string | null;
+  phone: string | null;
+  bio: string | null;
+  username: string | null;
+  avatarUrl: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -63,8 +67,37 @@ export async function signup(input: { name: string; email: string; password: str
   });
 }
 
+export async function signupHelper(input: { name: string; email: string; password: string }) {
+  return request<AuthResponse>("/api/auth/helper/signup", {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function updateProfile(input: {
+  name?: string;
+  phone?: string;
+  bio?: string;
+  username?: string;
+  avatarUrl?: string;
+}) {
+  const token = getStoredToken();
+  return request<{ user: User }>('/api/auth/me', {
+    method: 'PATCH',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: JSON.stringify(input)
+  });
+}
+
 export async function login(input: { email: string; password: string }) {
   return request<AuthResponse>("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function helperLogin(input: { email: string; password: string }) {
+  return request<AuthResponse>("/api/auth/helper/login", {
     method: "POST",
     body: JSON.stringify(input)
   });

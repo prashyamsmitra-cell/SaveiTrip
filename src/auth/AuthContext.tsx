@@ -4,16 +4,22 @@ import { clearSession, fetchMe, getStoredToken, getStoredUser, saveSession, type
 type AuthContextValue = {
   user: User | null;
   token: string | null;
+  isHelper: boolean;
   loading: boolean;
-  setSession: (session: { token: string; user: User }) => void;
+  setSession: (session: { token: string; user: User }, accountType?: "traveler" | "helper") => void;
+  updateUser: (user: User) => void;
   signOut: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const ACCOUNT_TYPE_KEY = "saveitrip_account_type";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => getStoredUser());
   const [token, setToken] = useState<string | null>(() => getStoredToken());
+  const [isHelper, setIsHelper] = useState(
+    () => localStorage.getItem(ACCOUNT_TYPE_KEY) === "helper" || window.location.pathname.startsWith("/helper/")
+  );
   const [loading, setLoading] = useState(Boolean(getStoredToken()));
 
   useEffect(() => {
@@ -39,19 +45,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       user,
       token,
+      isHelper,
       loading,
-      setSession: (session) => {
+      setSession: (session, accountType = "traveler") => {
         saveSession(session);
         setToken(session.token);
         setUser(session.user);
+        setIsHelper(accountType === "helper");
+        localStorage.setItem(ACCOUNT_TYPE_KEY, accountType);
+      },
+      updateUser: (nextUser) => {
+        setUser(nextUser);
+        const storedToken = getStoredToken();
+        if (storedToken) saveSession({ token: storedToken, user: nextUser });
       },
       signOut: () => {
         clearSession();
         setToken(null);
         setUser(null);
+        setIsHelper(false);
+        localStorage.removeItem(ACCOUNT_TYPE_KEY);
       }
     }),
-    [loading, token, user]
+    [isHelper, loading, token, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
