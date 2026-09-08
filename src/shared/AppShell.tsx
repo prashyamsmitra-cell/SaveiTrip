@@ -16,6 +16,7 @@ const travelerNav: readonly { to: string; label: string; icon: IconName }[] = [
 
 const helperNav: readonly { to: string; label: string; icon: IconName }[] = [
   { to: "/helper/dashboard", label: "Helper home", icon: "dashboard" },
+  { to: "/helper/endorsements", label: "Endorsements", icon: "star" },
   { to: "/helpers", label: "Helper network", icon: "users" },
   { to: "/helpers/alert", label: "Raise alert", icon: "shield" },
   { to: "/profile", label: "My profile", icon: "user" }

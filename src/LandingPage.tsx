@@ -65,6 +65,7 @@ export default function LandingPage() {
         <ExperienceBand />
         <HowItWorks />
         <PrinciplesSection />
+        <BusinessPromoteCta />
         <FinalCta />
       </main>
 
@@ -84,7 +85,7 @@ function Header() {
         : "border-b border-transparent bg-transparent"
         }`}
     >
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 md:px-8">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 md:h-20 md:px-8">
         <Link to="/" aria-label="SaveiTrip home">
           <span
             className={`inline-flex items-center gap-2.5 font-display text-xl tracking-tight transition-colors ${scrolled ? "text-ink" : "text-canvas"
@@ -155,11 +156,20 @@ function Hero() {
         alt="Majestic Himalayan lake at dawn"
         className="landing-hero-image absolute inset-0 h-full w-full object-cover"
       />
-      <div className="absolute inset-0 bg-linear-to-t from-ink/95 via-ink/40 to-ink/20" />
-      <div className="absolute inset-0 bg-[radial-gradient(120%_140%_at_75%_110%,rgba(63,107,79,0.35),transparent_55%)]" />
+      <div className="absolute inset-0 bg-linear-to-t from-ink/95 via-ink/45 to-ink/30" />
+      <div className="absolute inset-0 bg-[radial-gradient(120%_140%_at_75%_110%,rgba(63,107,79,0.5),transparent_55%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(75%_95%_at_12%_0%,rgba(167,116,47,0.25),transparent_60%)]" />
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-canvas/30 to-transparent" />
+      <div aria-hidden="true" className="grain" />
 
-      <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 pt-32 md:px-8 md:pb-20">
+      <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 pt-28 md:px-8 md:pb-20 md:pt-32">
 
+        <Reveal delay={60}>
+          <span className="inline-flex items-center gap-2 rounded-full border border-canvas/15 bg-canvas/10 px-3.5 py-1.5 text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-canvas/85 backdrop-blur-md sm:text-[0.65rem] sm:tracking-[0.22em]">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent-amber" />
+            Travel intelligence for India
+          </span>
+        </Reveal>
         <Reveal delay={90}>
           <h1 className="font-display mt-6 max-w-4xl text-5xl leading-none text-canvas sm:text-6xl md:text-7xl lg:text-[5.2rem] [text-shadow:0_3px_30px_rgba(0,0,0,0.45)]">
             Know where you're going,{" "}
@@ -174,8 +184,8 @@ function Hero() {
           </p>
         </Reveal>
         <Reveal delay={260}>
-          <div className="mt-10 max-w-2xl rounded-2xl border border-canvas/20 bg-ink/40 p-3 shadow-2xl shadow-ink/40 backdrop-blur-xl">
-            <div className="flex flex-col gap-2 md:flex-row md:items-center">
+          <div className="mt-10 max-w-2xl rounded-[1.75rem] border border-canvas/15 bg-canvas/5 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl">
+            <div className="flex flex-col gap-2 rounded-[calc(1.75rem-0.375rem)] bg-ink/55 p-2.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)] md:flex-row md:items-center">
               <div className="flex flex-1 items-center gap-3 px-3 py-2">
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-canvas/10 text-accent-amber ring-1 ring-canvas/20">
                   <Icon name="compass" className="h-4 w-4" />
@@ -197,10 +207,12 @@ function Hero() {
               </div>
               <Link
                 to="/login"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-amber px-6 py-4 text-sm font-semibold text-canvas transition hover:-translate-y-0.5 hover:bg-accent-amber/90 md:self-stretch"
+                className="group inline-flex items-center justify-between gap-3 rounded-full bg-accent-amber py-2 pl-6 pr-2 text-sm font-semibold text-canvas shadow-lg shadow-accent-amber/25 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-accent-amber/95 active:scale-[0.98] md:self-stretch"
               >
                 Start my trip
-                <Icon name="arrow-right" className="h-4 w-4" />
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink/15 text-canvas transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-[1px]">
+                  <Icon name="arrow-right" className="h-4 w-4" />
+                </span>
               </Link>
             </div>
           </div>
@@ -321,11 +333,13 @@ function DestinationsSection() {
       }
 
       const maxShift = Math.max(0, track.scrollWidth - viewport.clientWidth);
-      const travel = window.innerHeight + maxShift;
+      const vh = window.innerHeight;
       const start = section.offsetTop;
-      const progress = Math.min(1, Math.max(0, (window.scrollY - start) / travel));
+      const approach = vh * 0.5;
+      const travel = maxShift + approach;
+      const progress = Math.min(1, Math.max(0, (window.scrollY - start - approach) / Math.max(1, maxShift)));
 
-      section.style.height = `${travel + window.innerHeight}px`;
+      section.style.height = `${travel + vh}px`;
       track.style.transform = `translate3d(${-maxShift * progress}px, 0, 0)`;
     };
 
@@ -392,7 +406,7 @@ function DestinationsSection() {
   ];
 
   return (
-    <section ref={sectionRef} id="destinations" className="destination-scroll-section mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-28">
+    <section ref={sectionRef} id="destinations" className="destination-scroll-section mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-28">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <Reveal dir="up">
           <p className="kicker">Curated for India</p>
@@ -408,8 +422,8 @@ function DestinationsSection() {
         </Reveal>
       </div>
 
-      <div ref={viewportRef} className="destination-scroll-viewport mt-14 overflow-hidden">
-        <div ref={trackRef} className="destination-scroll-track grid gap-5 md:grid-cols-12">
+      <div ref={viewportRef} className="destination-scroll-viewport mt-10 overflow-hidden md:mt-14">
+        <div ref={trackRef} className="destination-scroll-track grid gap-4 md:grid-cols-12 md:gap-5">
         {places.map((place, i) => (
           <Reveal key={place.name} dir="up" delay={i * 80} className={place.widths}>
             <a
@@ -450,7 +464,7 @@ function DestinationsSection() {
 
 function PlatformSection() {
   return (
-    <section className="border-y border-line/60 bg-canvas-alt/40 py-24 md:py-28">
+    <section className="border-y border-line/60 bg-canvas-alt/40 py-16 md:py-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <Reveal dir="up">
           <p className="kicker">The foundation</p>
@@ -458,7 +472,7 @@ function PlatformSection() {
             A solid base for every journey, already in place.
           </h2>
         </Reveal>
-        <div className="mt-16 grid gap-6 md:grid-cols-3">
+        <div className="mt-10 grid gap-6 md:mt-16 md:grid-cols-3">
           <Reveal dir="up">
             <PlatformCard
               icon="shield-check"
@@ -538,7 +552,7 @@ function PlatformCard({
 
 function ServicesSection() {
   return (
-    <section id="services" className="mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-28">
+    <section id="services" className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-28">
       <Reveal dir="up">
         <p className="kicker">The roadmap</p>
         <h2 className="font-display mt-4 max-w-2xl text-4xl leading-[1.05] md:text-6xl">
@@ -550,7 +564,7 @@ function ServicesSection() {
         </p>
       </Reveal>
 
-      <div className="mt-16 grid gap-6 md:grid-cols-3">
+      <div className="mt-10 grid gap-6 md:mt-16 md:grid-cols-3">
         {services.map((service, i) => (
           <Reveal key={service.slug} dir="up" delay={i * 90}>
             <ServiceCard service={service} />
@@ -605,36 +619,45 @@ function ServiceCard({ service }: { service: (typeof services)[number] }) {
 
 function ExperienceBand() {
   return (
-    <section className="relative overflow-hidden border-y border-line/60 bg-ink py-24 text-canvas md:py-32">
+    <section className="dark-section relative overflow-hidden border-y border-line/60 bg-ink py-16 text-canvas md:py-32">
       <img
-        src="https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=2000&q=80"
-        alt="Himalayan mountain road at golden hour"
-        className="absolute inset-0 h-full w-full object-cover opacity-40"
+        src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=2200&q=80"
+        alt="Misty mountain peaks at dusk"
+        className="absolute inset-0 h-full w-full object-cover opacity-50"
       />
-      <div className="absolute inset-0 bg-linear-to-r from-ink via-ink/85 to-ink/40" />
+      <div className="absolute inset-0 bg-linear-to-r from-ink via-ink/80 to-ink/35" />
+      <div className="absolute inset-0 bg-linear-to-t from-ink via-transparent to-ink/60" />
+      <div className="absolute inset-0 bg-[radial-gradient(110%_120%_at_0%_100%,rgba(63,107,79,0.45),transparent_55%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(70%_90%_at_90%_0%,rgba(167,116,47,0.3),transparent_55%)]" />
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-canvas/25 to-transparent" />
+      <div aria-hidden="true" className="grain" />
       <div className="relative mx-auto max-w-7xl px-5 md:px-8">
         <Reveal dir="up">
           <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-accent-amber">
             <Icon name="sparkles" className="h-4 w-4" /> The experience
           </p>
           <h2 className="font-display mt-5 max-w-2xl text-4xl leading-[1.06] md:text-6xl">
-            Plan with clarity. Travel with confidence.
+            Plan with clarity. Travel with <em className="text-accent-amber">confidence.</em>
           </h2>
         </Reveal>
-        <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-canvas/15 bg-canvas/15 sm:grid-cols-3">
+        <div className="mt-12 grid gap-4 sm:grid-cols-3">
           {[
             { icon: "search" as IconName, title: "Compare real prices", body: "Live market analysis across trusted providers so you always know a fair price before you book." },
             { icon: "trend" as IconName, title: "Understand conditions", body: "Destination and weather context researched carefully, so nothing catches you by surprise." },
             { icon: "shield" as IconName, title: "Stay prepared", body: "Emergency and limited-connectivity research designed in from the very start." }
           ].map((item, i) => (
-            <div key={item.title} className="flex flex-col gap-4 bg-ink/70 p-8 backdrop-blur-sm">
-              <span className="grid h-11 w-11 place-items-center rounded-xl bg-canvas/10 text-accent-amber ring-1 ring-canvas/20">
-                <Icon name={item.icon} className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="text-[0.65rem] font-medium uppercase tracking-[0.18em] text-canvas/45">0{i + 1}</p>
-                <h3 className="font-display mt-2 text-xl">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-canvas/70">{item.body}</p>
+            <div key={item.title} className="dark-panel h-full">
+              <div className="dark-panel-card flex flex-col gap-5 p-8">
+                <div className="flex items-center justify-between">
+                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-canvas/10 text-accent-amber shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] ring-1 ring-canvas/20">
+                    <Icon name={item.icon} className="h-5 w-5" />
+                  </span>
+                  <span className="font-display text-3xl text-canvas/15">0{i + 1}</span>
+                </div>
+                <div>
+                  <h3 className="font-display text-xl">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-canvas/70">{item.body}</p>
+                </div>
               </div>
             </div>
           ))}
@@ -663,7 +686,7 @@ function HowItWorks() {
   ];
 
   return (
-    <section id="how" className="mx-auto max-w-7xl px-5 py-24 md:px-8 md:py-28">
+    <section id="how" className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-28">
       <Reveal dir="up">
         <p className="kicker">How it works</p>
         <h2 className="font-display mt-4 max-w-2xl text-4xl leading-[1.05] md:text-6xl">
@@ -671,7 +694,7 @@ function HowItWorks() {
         </h2>
       </Reveal>
 
-      <div className="mt-16 grid gap-6 md:grid-cols-3">
+      <div className="mt-10 grid gap-6 md:mt-16 md:grid-cols-3">
         {steps.map((step, i) => (
           <Reveal key={step.title} dir="up" delay={i * 100}>
             <div className="relative h-full overflow-hidden rounded-2xl border border-line bg-surface p-8">
@@ -714,7 +737,7 @@ function PrinciplesSection() {
   ];
 
   return (
-    <section id="principles" className="border-t border-line/60 bg-canvas-alt/40 py-24 md:py-28">
+    <section id="principles" className="border-t border-line/60 bg-canvas-alt/40 py-16 md:py-28">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <Reveal dir="up">
           <p className="kicker">Principles</p>
@@ -723,7 +746,7 @@ function PrinciplesSection() {
           </h2>
         </Reveal>
 
-        <div className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-2">
+        <div className="mt-10 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-line bg-line md:mt-16 md:grid-cols-2">
           {principles.map((principle, i) => (
             <Reveal key={principle.title} dir="up" delay={i * 80}>
               <div className="group flex h-full flex-col justify-between gap-8 bg-surface p-8 transition-colors hover:bg-canvas md:p-10">
@@ -743,17 +766,92 @@ function PrinciplesSection() {
   );
 }
 
+/* ───────────────────────── Business Promotion CTA ───────────────────────── */
+
+function BusinessPromoteCta() {
+  return (
+    <section className="dark-section relative overflow-hidden border-y border-line/60 bg-ink py-16 text-canvas md:py-24">
+      <img
+        src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=2200&q=80"
+        alt="Warmly lit local restaurant interior"
+        className="absolute inset-0 h-full w-full object-cover opacity-35"
+      />
+      <div className="absolute inset-0 bg-linear-to-tr from-ink via-ink/90 to-ink/70" />
+      <div className="absolute inset-0 bg-linear-to-t from-ink via-transparent to-ink/70" />
+      <div className="absolute inset-0 bg-[radial-gradient(90%_120%_at_85%_0%,rgba(167,116,47,0.32),transparent_55%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(80%_120%_at_0%_100%,rgba(63,107,79,0.4),transparent_55%)]" />
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-canvas/25 to-transparent" />
+      <div aria-hidden="true" className="grain" />
+      <div className="relative mx-auto max-w-7xl px-5 md:px-8">
+        <div className="grid gap-12 lg:grid-cols-[1.05fr_1fr] lg:items-center">
+          <div>
+            <p className="inline-flex items-center gap-2 rounded-full border border-accent-amber/25 bg-accent-amber/10 px-3.5 py-1.5 text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-accent-amber">
+              For local businesses
+            </p>
+            <h2 className="font-display mt-5 max-w-xl text-4xl leading-[1.05] md:text-5xl">
+              Put your local business on the <em className="text-accent-amber">travellers' map.</em>
+            </h2>
+            <p className="mt-6 max-w-lg leading-7 text-canvas/75">
+              SaveiTrip's endorsement program connects verified local helpers with businesses worth
+              recommending. Submit an inquiry today and your listing can reach travellers heading
+              your way.
+            </p>
+            <div className="mt-9">
+              <Link
+                to="/business/promote"
+                className="group inline-flex items-center justify-center gap-3 rounded-full bg-canvas py-3 pl-7 pr-3 text-base font-semibold text-ink shadow-xl shadow-ink/40 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-white active:scale-[0.98]"
+              >
+                Promote Your Local Business
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-ink/10 text-ink transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-[1px]">
+                  <Icon name="arrow-right" className="h-4 w-4" />
+                </span>
+              </Link>
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            {[
+              { icon: "pin" as IconName, title: "Get discovered", body: "Appear to travellers planning trips to your neighbourhood, not just search engines." },
+              { icon: "shield-check" as IconName, title: "Verified by helpers", body: "Local travel helpers inspect and endorse your business after an on-ground visit." },
+              { icon: "trend" as IconName, title: "Prepared by our team", body: "We research your category and location first, so your listing starts field-ready." }
+            ].map((item, i) => (
+              <div key={item.title} className="dark-panel h-full">
+                <div className="dark-panel-card flex items-start gap-5 p-6">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-canvas/10 text-accent-amber shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] ring-1 ring-canvas/20">
+                    <Icon name={item.icon} className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="font-display text-lg">{item.title}</h3>
+                      <span className="font-display text-xl text-canvas/15">{`0${i + 1}`}</span>
+                    </div>
+                    <p className="mt-1.5 text-sm leading-6 text-canvas/70">{item.body}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ───────────────────────── Final CTA ───────────────────────── */
 
 function FinalCta() {
   return (
-    <section className="relative overflow-hidden py-24 md:py-32">
+    <section className="dark-section relative overflow-hidden py-20 md:py-32">
       <img
-        src="https://images.unsplash.com/photo-1646327537880-962a5276e4bf?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        src="https://images.unsplash.com/photo-1646327537880-962a5276e4bf?q=80&w=2000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
         alt="Sunrise over an open valley road"
         className="absolute inset-0 h-full w-full object-cover"
       />
-      <div className="absolute inset-0 bg-ink/30" />
+      <div className="absolute inset-0 bg-linear-to-t from-ink/90 via-ink/40 to-ink/55" />
+      <div className="absolute inset-0 bg-[radial-gradient(100%_130%_at_50%_120%,rgba(63,107,79,0.4),transparent_55%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(70%_90%_at_15%_0%,rgba(167,116,47,0.22),transparent_60%)]" />
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-canvas/25 to-transparent" />
+      <div aria-hidden="true" className="grain" />
       <Reveal dir="scale">
         <div className="relative mx-auto max-w-3xl px-6 text-center">
           <p className="inline-flex items-center gap-2.5 rounded-full bg-canvas/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.22em] text-canvas/85 ring-1 ring-canvas/25 backdrop-blur-md">
@@ -766,19 +864,19 @@ function FinalCta() {
             Create a free account and see what a travel intelligence workspace looks like. Explore
             the product with one click.
           </p>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/signup" className="btn btn-canvas px-7! py-3.5! text-base">
+          <div className="mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
+            <Link to="/signup" className="btn btn-canvas w-full px-7! py-3.5! text-base sm:w-auto">
               Get started
               <Icon name="arrow-right" className="h-4 w-4" />
             </Link>
-            <Link to="/login" className="btn btn-outline-light px-7! py-3.5! text-base">
+            <Link to="/login" className="btn btn-outline-light w-full px-7! py-3.5! text-base sm:w-auto">
               Explore the demo
             </Link>
-            <Link to="/helper/signup" className="btn btn-outline-light px-7! py-3.5! text-base">
+            <Link to="/helper/signup" className="btn btn-outline-light w-full px-7! py-3.5! text-base sm:w-auto">
               Become a travel helper
               <Icon name="users" className="h-4 w-4" />
             </Link>
-            <Link to="/helper/login" className="btn btn-outline-light px-7! py-3.5! text-base">
+            <Link to="/helper/login" className="btn btn-outline-light w-full px-7! py-3.5! text-base sm:w-auto">
               Helper login
               <Icon name="users" className="h-4 w-4" />
             </Link>

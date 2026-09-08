@@ -199,6 +199,14 @@ const icons: Record<string, ReactNode> = {
       <polygon points="3 11 22 2 13 21 11 13 3 11" />
     </>
   ),
+  "refresh": (
+    <>
+      <path d="M3 12a9 9 0 0 1 15.5-6.5L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-15.5 6.5L3 16" />
+      <path d="M3 21v-5h5" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof icons;

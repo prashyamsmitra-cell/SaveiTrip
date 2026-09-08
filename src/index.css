@@ -400,6 +400,10 @@ select:focus-visible {
   animation: landingHeaderIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.landing-page .landing-header > div {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
 .landing-page .landing-hero-image {
   animation: landingHeroImage 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: opacity, transform;
@@ -903,4 +907,42 @@ select:focus-visible {
 }
 .marquee-track:hover {
   animation-play-state: paused;
+}
+
+/* ─── Dark Material (landing) ─── */
+.dark-section {
+  position: relative;
+  isolation: isolate;
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 132px 132px;
+  mix-blend-mode: overlay;
+  opacity: 0.4;
+}
+
+.dark-panel {
+  background: color-mix(in srgb, var(--color-canvas) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-canvas) 18%, transparent);
+  border-radius: calc(var(--radius-lg) + 0.75rem);
+  padding: 0.375rem;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 14%, transparent),
+    inset 0 -1px 1px color-mix(in srgb, black 38%, transparent);
+}
+
+.dark-panel-card {
+  position: relative;
+  height: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-ink) 82%, transparent);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.07),
+    var(--shadow-card);
 }

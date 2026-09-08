@@ -1,4 +1,5 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
 import GoogleCallbackPage from "./auth/GoogleCallbackPage";
 import LoginPage from "./auth/LoginPage";
@@ -19,6 +20,8 @@ import TravelHelperPage from "./travelHelper/TravelHelperPage";
 import HelperProfilePage from "./travelHelper/HelperProfilePage";
 import HelperAlertPage from "./travelHelper/HelperAlertPage";
 import AuthChoicePage from "./auth/AuthChoicePage";
+import BusinessPromotionPage from "./business/BusinessPromotionPage";
+import HelperEndorsementDashboardPage from "./business/HelperEndorsementDashboardPage";
 import AppShell from "./shared/AppShell";
 import { Brand } from "./shared/ui";
 import { Icon } from "./shared/Icon";
@@ -44,10 +47,19 @@ function NotFound() {
   );
 }
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -68,6 +80,8 @@ export default function App() {
           <Route path="/comparison" element={<ProtectedRoute><ComparisonPage /></ProtectedRoute>} />
           <Route path="/sos" element={<ProtectedRoute><SosPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/business/promote" element={<BusinessPromotionPage />} />
+          <Route path="/helper/endorsements" element={<ProtectedRoute><HelperEndorsementDashboardPage /></ProtectedRoute>} />
           <Route path="/services" element={<Navigate to="/dashboard" replace />} />
           <Route path="/trips/new" element={<Navigate to="/assistant" replace />} />
           <Route path="/prediction" element={<Navigate to="/assistant" replace />} />
