@@ -1,5 +1,4 @@
 const API_URL = import.meta.env.VITE_API_URL ?? "";
-const TOKEN_KEY = "saveitrip_token";
 
 export type TravelQuery = {
   destination: string;
@@ -55,12 +54,11 @@ export type Analytics = {
 };
 
 async function authedRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = localStorage.getItem(TOKEN_KEY);
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
   });

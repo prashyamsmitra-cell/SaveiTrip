@@ -22,11 +22,25 @@ const helperNav: readonly { to: string; label: string; icon: IconName }[] = [
   { to: "/profile", label: "My profile", icon: "user" }
 ];
 
+const businessNav: readonly { to: string; label: string; icon: IconName }[] = [
+  { to: "/business/promote", label: "Promote", icon: "star" },
+  { to: "/business/profile", label: "Profile", icon: "user" },
+  { to: "/business/inquiry/new", label: "New inquiry", icon: "sparkles" },
+  { to: "/profile", label: "Account", icon: "dashboard" }
+];
+
+const adminNav: readonly { to: string; label: string; icon: IconName }[] = [
+  { to: "/admin/endorsements", label: "Endorsement console", icon: "shield" },
+  { to: "/dashboard", label: "Traveler dashboard", icon: "dashboard" },
+  { to: "/profile", label: "Account", icon: "user" }
+];
+
 export default function AppShell({ children, fullHeight, helperMode = false }: { children: ReactNode; fullHeight?: boolean; helperMode?: boolean }) {
   const navigate = useNavigate();
-  const { user, signOut, isHelper } = useAuth();
+  const { user, signOut, isHelper, isAdmin, isBusiness } = useAuth();
   const showHelperNavigation = helperMode || isHelper;
-  const nav = showHelperNavigation ? helperNav : travelerNav;
+  const nav = isAdmin ? adminNav : isBusiness ? businessNav : showHelperNavigation ? helperNav : travelerNav;
+  const home = isAdmin ? "/admin/endorsements" : isBusiness ? "/business/promote" : showHelperNavigation ? "/helper/dashboard" : "/dashboard";
 
   async function handleLogout() {
     await logout();
@@ -42,7 +56,7 @@ export default function AppShell({ children, fullHeight, helperMode = false }: {
       <header className="sticky top-0 z-40 border-b border-line/80 bg-canvas/90 backdrop-blur-md">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <div className="flex h-16 items-center justify-between gap-4">
-            <NavLink to={showHelperNavigation ? "/helper/dashboard" : "/dashboard"} className="shrink-0">
+            <NavLink to={home} className="shrink-0">
               <Brand />
             </NavLink>
             <nav className="hidden items-center gap-1.5 lg:flex">

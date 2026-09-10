@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ServiceDetail from "../shared/ServiceDetail";
 import { getService } from "../shared/services";
 import { Icon } from "../shared/Icon";
 import { Skeleton, Spinner } from "../shared/ui";
-import { searchOffers, unlockAllResults, type ComparisonSearchResult, type TravelQuery } from "./comparisonApi";
+import { searchOffers, type ComparisonSearchResult, type TravelQuery } from "./comparisonApi";
 
 const service = getService("comparison")!;
 
@@ -27,6 +28,7 @@ function today(): string {
 }
 
 export default function ComparisonPage() {
+  const navigate = useNavigate();
   const [destination, setDestination] = useState("Goa");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -73,12 +75,7 @@ export default function ComparisonPage() {
 
   async function handleSeeMore() {
     if (!result) return;
-    try {
-      const unlockData = await unlockAllResults();
-      window.location.href = unlockData.redirectUrl || "/payment/required";
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to unlock results");
-    }
+    navigate("/payments");
   }
 
   const cheapestId = result?.cheapest?.id;

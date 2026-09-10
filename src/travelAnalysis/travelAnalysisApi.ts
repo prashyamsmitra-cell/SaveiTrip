@@ -1,9 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL ?? "";
-const TOKEN_KEY = "saveitrip_token";
 const USER_KEY = "saveitrip_user";
 
 function handleUnauthorized() {
-  localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
   if (!window.location.pathname.startsWith("/login")) {
     window.location.href = "/login";
@@ -11,12 +9,11 @@ function handleUnauthorized() {
 }
 
 async function authedRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = localStorage.getItem(TOKEN_KEY);
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
   });
@@ -106,12 +103,11 @@ export async function sendMessageStreaming(
   content: string,
   handlers: StreamHandlers
 ): Promise<{ conversationId: string; messageId: string; fallback: boolean }> {
-  const token = localStorage.getItem(TOKEN_KEY);
   const response = await fetch(`${API_URL}/api/assistant/chat/stream`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify({ conversationId, content }),
   });

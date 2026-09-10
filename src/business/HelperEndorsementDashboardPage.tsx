@@ -1,87 +1,61 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AppShell from "../shared/AppShell";
 import { Icon } from "../shared/Icon";
-import { Skeleton, Spinner } from "../shared/ui";
+import { Spinner } from "../shared/ui";
+import { listOpportunities } from "./api/opportunities";
 import {
-  listEndorsementOpportunities,
-  setEndorsementOpportunityStatus
-} from "./endorsementService";
-import type { EndorsementOpportunity, EndorsementStatus } from "./endorsementTypes";
+  listMyHelperEndorsements,
+  submitHelperEndorsement,
+  withdrawHelperEndorsement
+} from "./api/endorsements";
+import { listPublicBusinesses } from "./api/coverage";
+import type {
+  EndorsementOpportunity,
+  HelperEndorsement,
+  LocationProfile,
+  PublicBusiness
+} from "./endorsementTypes";
+import { ErrorState, EmptyState, LoadingState } from "./components/StateViews";
+import { HelperEndorsementStatusBadge } from "./components/StatusBadge";
+import { formatLocation, timeAgo } from "./components/format";
 
-const statusMeta: Record<
-  EndorsementStatus,
-  { label: string; badge: string; dot: string }
-> = {
-  available: {
-    label: "Available",
-    badge: "bg-accent-green-soft text-accent-green",
-    dot: "bg-accent-green"
-  },
-  claimed: {
-    label: "Claimed",
-    badge: "bg-accent-amber-soft text-accent-amber",
-    dot: "bg-accent-amber"
-  },
-  "under-review": {
-    label: "Under Review",
-    badge: "bg-accent-amber-soft text-accent-amber",
-    dot: "bg-accent-amber"
-  },
-  endorsed: {
-    label: "Endorsed",
-    badge: "bg-accent-green text-canvas",
-    dot: "bg-accent-green"
-  },
-  "not-endorsed": {
-    label: "Not Endorsed",
-    badge: "bg-accent-red-soft text-accent-red",
-    dot: "bg-accent-red"
-  }
-};
-
-const filters: { key: EndorsementStatus | "all"; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "available", label: "Available" },
-  { key: "claimed", label: "Claimed" },
-  { key: "under-review", label: "Under Review" },
-  { key: "endorsed", label: "Endorsed" },
-  { key: "not-endorsed", label: "Not Endorsed" }
-];
-
-function timeAgo(iso: string) {
-  const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-  if (seconds < 60) return "just now";
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} min ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hr ago`;
-  const days = Math.floor(hours / 24);
-  return `${days} day${days > 1 ? "s" : ""} ago`;
-}
+const EMPTY_LOCATION: LocationProfile = { city: "", state: "", region: "" };
 
 export default function HelperEndorsementDashboardPage() {
   const [opportunities, setOpportunities] = useState<EndorsementOpportunity[]>([]);
-  const [filter, setFilter] = useState<EndorsementStatus | "all">("all");
+  const [endorsements, setEndorsements] = useState<HelperEndorsement[]>([]);
+  const [businesses, setBusinesses] = useState<PublicBusiness[]>([]);
+
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  const load = useCallback(async (silent = false) => {
-    if (silent) {
-      setRefreshing(true);
-    } else {
-      setError("");
-      setLoading(true);
-    }
+  // Endorsement form state
+  const [businessId, setBusinessId] = useState("");
+  const [reason, setReason] = useState("");
+  const [category, setCategory] = useState("");
+  const [location, setLocation] = useState<LocationProfile>(EMPTY_LOCATION);
+  const [evidenceRefs, setEvidenceRefs] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [formSuccess, setFormSuccess] = useState("");
+
+  const load = useCallback(async () => {
+    setError("");
+    setLoading(true);
     try {
-      const result = await listEndorsementOpportunities();
-      setOpportunities(result.opportunities);
-    } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Failed to load opportunities.");
+      const [opps, mine, pub] = await Promise.all([
+        listOpportunities(),
+        listMyHelperEndorsements(),
+        listPublicBusinesses()
+      ]);
+      setOpportunities(opps.opportunities);
+      setEndorsements(mine.endorsements);
+      setBusinesses(pub.businesses);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load your endorsement workspace.");
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   }, []);
 
@@ -89,29 +63,79 @@ export default function HelperEndorsementDashboardPage() {
     load();
   }, [load]);
 
-  async function transitionTo(id: string, status: EndorsementStatus) {
-    setBusyId(id);
+  const businessNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const b of businesses) map.set(b.id, b.name);
+    return map;
+  }, [businesses]);
+
+  const openCount = opportunities.filter((o) => o.status === "OPEN").length;
+
+  async function handleSelectBusiness(id: string) {
+    setBusinessId(id);
+    const biz = businesses.find((b) => b.id === id);
+    if (biz) {
+      setCategory(biz.category);
+      setLocation(biz.location);
+    }
+  }
+
+  async function handleSubmitEndorsement(event: React.FormEvent) {
+    event.preventDefault();
+    setFormError("");
+    setFormSuccess("");
+    if (!businessId) {
+      setFormError("Select a business to endorse.");
+      return;
+    }
+    if (!reason.trim()) {
+      setFormError("Add a reason for your endorsement.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const refs = evidenceRefs
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      await submitHelperEndorsement({
+        businessId,
+        reason: reason.trim(),
+        location,
+        category: category.trim() || "General",
+        evidenceRefs: refs.length > 0 ? refs : undefined
+      });
+      setFormSuccess("Endorsement submitted for review.");
+      setReason("");
+      setBusinessId("");
+      setCategory("");
+      setLocation(EMPTY_LOCATION);
+      setEvidenceRefs("");
+      const mine = await listMyHelperEndorsements();
+      setEndorsements(mine.endorsements);
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Failed to submit endorsement.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleWithdraw(endorsementId: string) {
+    setBusyId(endorsementId);
     setError("");
     try {
-      await setEndorsementOpportunityStatus(id, status);
-      await load(true);
-    } catch (changeError) {
-      setError(
-        changeError instanceof Error ? changeError.message : "Action failed. Please try again."
-      );
+      await withdrawHelperEndorsement(endorsementId);
+      const mine = await listMyHelperEndorsements();
+      setEndorsements(mine.endorsements);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not withdraw the endorsement.");
     } finally {
       setBusyId(null);
     }
   }
 
-  const filtered =
-    filter === "all" ? opportunities : opportunities.filter((item) => item.status === filter);
-
-  const countFor = (key: EndorsementStatus | "all") =>
-    key === "all" ? opportunities.length : opportunities.filter((item) => item.status === key).length;
-
   return (
-    <AppShell helperMode>
+    <AppShell>
       <section className="page-fade">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -121,244 +145,272 @@ export default function HelperEndorsementDashboardPage() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-green opacity-70" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-green" />
                 </span>
-                Live endorsement opportunities
+                Helper network
               </span>
             </p>
             <h1 className="font-display mt-4 text-4xl leading-[1.05] md:text-5xl">
-              Local businesses near you.
+              Endorse trusted local businesses.
             </h1>
             <p className="mt-4 max-w-xl leading-7 text-ink-soft">
-              Businesses have asked for on-ground review. Claims you can make within your coverage
-              area surface here first.
+              Travelers rely on helpers like you. Submit an endorsement for a business you have
+              personally experienced on the ground — the review team verifies every entry.
             </p>
           </div>
-          <button
-            onClick={() => load(true)}
-            disabled={refreshing}
-            className="btn btn-ghost self-start md:self-auto"
-          >
-            {refreshing ? (
-              <Spinner className="h-4 w-4" />
-            ) : (
-              <Icon name="refresh" className="h-4 w-4" />
-            )}
-            Refresh feed
+          <button onClick={() => load()} disabled={loading} className="btn btn-ghost self-start md:self-auto">
+            {loading ? <Spinner className="h-4 w-4" /> : <Icon name="refresh" className="h-4 w-4" />}
+            Refresh
           </button>
         </div>
 
-        <div className="mt-8 flex flex-wrap items-center gap-2">
-          {filters.map((option) => (
-            <button
-              key={option.key}
-              onClick={() => setFilter(option.key)}
-              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ${
-                filter === option.key
-                  ? "border-ink bg-ink text-canvas"
-                  : "border-line bg-surface-high text-ink-soft hover:border-ink hover:text-ink"
-              }`}
-            >
-              {option.label}
-              <span
-                className={`rounded-full px-1.5 py-0.5 text-[0.65rem] font-semibold leading-none ${
-                  filter === option.key
-                    ? "bg-canvas/20 text-canvas"
-                    : "bg-canvas-alt text-ink-faint"
-                }`}
-              >
-                {countFor(option.key)}
-              </span>
-            </button>
-          ))}
-        </div>
-
         {error && (
-          <div className="mt-6 flex items-start justify-between gap-4 rounded-xl border border-accent-red/25 bg-accent-red-soft p-4">
-            <div className="alert-error border-0 bg-transparent p-0">
-              <Icon name="alert" className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{error}</span>
-            </div>
-            <button onClick={() => load()} className="btn btn-outline shrink-0 px-3! py-1.5! text-xs">
-              Retry
-            </button>
+          <div className="mt-6">
+            <ErrorState message={error} onRetry={() => load()} />
           </div>
         )}
 
         {loading ? (
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="card space-y-4 p-6">
-                <div className="flex items-center justify-between">
-                  <Skeleton className="h-6 w-28" />
-                  <Skeleton className="h-6 w-20 rounded-full" />
-                </div>
-                <Skeleton className="h-7 w-3/4" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-5/6" />
-                <div className="flex gap-3 pt-2">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-4 w-16" />
-                </div>
-                <Skeleton className="h-10 w-full rounded-md" />
-              </div>
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="mt-10 flex min-h-[16rem] flex-col items-center justify-center rounded-2xl border border-dashed border-line-strong bg-surface px-6 text-center">
-            <span className="grid h-14 w-14 place-items-center rounded-full bg-canvas-alt text-ink-faint">
-              <Icon name="star" className="h-6 w-6" />
-            </span>
-            <h2 className="font-display mt-5 text-xl">
-              {opportunities.length === 0
-                ? "No opportunities right now"
-                : "Nothing here yet"}
-            </h2>
-            <p className="mt-2 max-w-sm text-sm leading-6 text-ink-soft">
-              {opportunities.length === 0
-                ? "New business endorsements will appear here as they are received. Check back soon."
-                : "No businesses match this status. Try another filter to keep browsing the board."}
-            </p>
-            {opportunities.length > 0 && (
-              <button onClick={() => setFilter("all")} className="btn btn-outline mt-6">
-                Show all opportunities
-              </button>
-            )}
+          <div className="mt-10">
+            <LoadingState rows={4} />
           </div>
         ) : (
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {filtered.map((item) => {
-              const meta = statusMeta[item.status];
-              const busy = busyId === item.id;
-              return (
-                <article
-                  key={item.id}
-                  className={`card flex h-full flex-col p-6 transition-transform ${
-                    item.status === "available"
-                      ? "border-accent-green/30 ring-1 ring-accent-green/10"
-                      : ""
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="chip">{item.category}</span>
-                    <span className={`badge ${meta.badge}`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
-                      {meta.label}
-                    </span>
+          <>
+            {/* Submit endorsement */}
+            <div className="mt-10 grid gap-8 lg:grid-cols-5">
+              <div className="card p-6 md:p-8 lg:col-span-3">
+                <p className="kicker">New endorsement</p>
+                <h2 className="font-display mt-2 text-2xl">Recommend a business</h2>
+                <p className="mt-2 text-sm leading-6 text-ink-soft">
+                  Choose a business you have personally used, add why it deserves a traveler-facing
+                  endorsement, and submit it to the review queue.
+                </p>
+
+                <form onSubmit={handleSubmitEndorsement} className="mt-6 space-y-5">
+                  <div>
+                    <label htmlFor="biz" className="field-label">
+                      Business
+                    </label>
+                    <select
+                      id="biz"
+                      value={businessId}
+                      onChange={(e) => handleSelectBusiness(e.target.value)}
+                      className="input"
+                    >
+                      <option value="">Select a business…</option>
+                      {businesses.map((b) => (
+                        <option key={b.id} value={b.id}>
+                          {b.name} — {formatLocation(b.location)}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
-                  <h2 className="font-display mt-4 text-2xl leading-tight">
-                    {item.businessName}
-                  </h2>
-
-                  <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-ink-soft">
-                    <span className="inline-flex items-center gap-1.5">
-                      <Icon name="pin" className="h-3.5 w-3.5 text-ink-faint" />
-                      {item.location}
-                    </span>
-                    <span className="badge bg-canvas-alt text-ink-soft">
-                      {item.distanceKm.toFixed(1)} km from you
-                    </span>
+                  <div className="grid gap-5 sm:grid-cols-3">
+                    <div>
+                      <label htmlFor="cat" className="field-label">
+                        Category
+                      </label>
+                      <input
+                        id="cat"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        className="input"
+                        placeholder="Trekking gear"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="rcity" className="field-label">
+                        City
+                      </label>
+                      <input
+                        id="rcity"
+                        value={location.city}
+                        onChange={(e) => setLocation({ ...location, city: e.target.value })}
+                        className="input"
+                        placeholder="Manali"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="rstate" className="field-label">
+                        State
+                      </label>
+                      <input
+                        id="rstate"
+                        value={location.state}
+                        onChange={(e) => setLocation({ ...location, state: e.target.value })}
+                        className="input"
+                        placeholder="Himachal Pradesh"
+                      />
+                    </div>
                   </div>
 
-                  <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-ink-faint">
-                    <span className="inline-flex items-center gap-1.5">
-                      <Icon name="trend" className="h-3.5 w-3.5" />
-                      {item.scale}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5">
-                      <Icon name="clock" className="h-3.5 w-3.5" />
-                      {timeAgo(item.postedAt)}
-                    </span>
+                  <div>
+                    <label htmlFor="reason" className="field-label">
+                      Why should travelers trust this business?
+                    </label>
+                    <textarea
+                      id="reason"
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
+                      rows={4}
+                      className="input resize-y"
+                      placeholder="Share what you experienced — quality, reliability, fair pricing, safety…"
+                    />
                   </div>
 
-                  <p className="mt-4 text-sm leading-6 text-ink-soft">{item.summary}</p>
+                  <div>
+                    <label htmlFor="refs" className="field-label">
+                      Evidence references (optional, comma separated)
+                    </label>
+                    <input
+                      id="refs"
+                      value={evidenceRefs}
+                      onChange={(e) => setEvidenceRefs(e.target.value)}
+                      className="input"
+                      placeholder="booking ref, receipt link, photo ref…"
+                    />
+                  </div>
 
-                  <div className="mt-auto pt-6">
-                    {item.status === "available" && (
-                      <button
-                        onClick={() => transitionTo(item.id, "claimed")}
-                        disabled={busy}
-                        className="btn btn-accent w-full justify-center"
-                      >
-                        {busy ? (
-                          <>
-                            <Spinner /> Claiming...
-                          </>
-                        ) : (
-                          <>
-                            <Icon name="zap" className="h-4 w-4" />
-                            Claim opportunity
-                          </>
-                        )}
-                      </button>
-                    )}
+                  {formError && (
+                    <div className="alert-error">
+                      <Icon name="alert" className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>{formError}</span>
+                    </div>
+                  )}
+                  {formSuccess && (
+                    <div className="rounded-xl border border-accent-green/25 bg-accent-green-soft px-4 py-3 text-sm text-accent-green">
+                      {formSuccess}
+                    </div>
+                  )}
 
-                    {item.status === "claimed" && (
-                      <button
-                        onClick={() => transitionTo(item.id, "under-review")}
-                        disabled={busy}
-                        className="btn btn-primary w-full justify-center"
-                      >
-                        {busy ? (
-                          <>
-                            <Spinner /> Updating...
-                          </>
-                        ) : (
-                          "Start inspection & review"
-                        )}
-                      </button>
-                    )}
-
-                    {item.status === "under-review" && (
-                      <div className="grid grid-cols-2 gap-3">
-                        <button
-                          onClick={() => transitionTo(item.id, "endorsed")}
-                          disabled={busy}
-                          className="btn btn-accent justify-center"
-                        >
-                          {busy ? (
-                            <Spinner />
-                          ) : (
-                            <>
-                              <Icon name="check" className="h-4 w-4" />
-                              Endorse
-                            </>
-                          )}
-                        </button>
-                        <button
-                          onClick={() => transitionTo(item.id, "not-endorsed")}
-                          disabled={busy}
-                          className="btn btn-outline justify-center text-accent-red! hover:border-accent-red hover:bg-accent-red-soft"
-                        >
-                          Not endorsed
-                        </button>
-                      </div>
-                    )}
-
-                    {item.status === "endorsed" && (
-                      <button
-                        disabled
-                        className="btn w-full cursor-default justify-center bg-accent-green-soft text-accent-green"
-                      >
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="btn btn-accent justify-center"
+                  >
+                    {submitting ? (
+                      <>
+                        <Spinner /> Submitting…
+                      </>
+                    ) : (
+                      <>
                         <Icon name="shield-check" className="h-4 w-4" />
-                        Endorsement published
-                      </button>
+                        Submit endorsement
+                      </>
                     )}
+                  </button>
+                </form>
+              </div>
 
-                    {item.status === "not-endorsed" && (
-                      <button
-                        disabled
-                        className="btn w-full cursor-default justify-center bg-accent-red-soft text-accent-red"
-                      >
-                        <Icon name="x" className="h-4 w-4" />
-                        Closed — not endorsed
-                      </button>
-                    )}
+              {/* My endorsements */}
+              <div className="lg:col-span-2">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="font-display text-xl">Your endorsements</h2>
+                  <span className="badge bg-canvas-alt text-ink-soft">{endorsements.length}</span>
+                </div>
+                {endorsements.length === 0 ? (
+                  <div className="mt-4">
+                    <EmptyState
+                      icon="star"
+                      title="Nothing yet"
+                      message="Endorsements you submit will appear here with their review status."
+                    />
                   </div>
-                </article>
-              );
-            })}
-          </div>
+                ) : (
+                  <div className="mt-4 space-y-4">
+                    {endorsements.map((e) => (
+                      <article key={e.id} className="card p-5">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <h3 className="font-display text-lg leading-snug">
+                              {businessNameById.get(e.businessId) ?? "Business"}
+                            </h3>
+                            <p className="mt-1 text-xs text-ink-soft">
+                              {e.category} · {formatLocation(e.location)}
+                            </p>
+                          </div>
+                          <HelperEndorsementStatusBadge status={e.status} />
+                        </div>
+                        <p className="mt-3 text-sm leading-6 text-ink-soft">{e.reason}</p>
+                        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
+                          <span className="inline-flex items-center gap-1.5 text-xs text-ink-faint">
+                            <Icon name="clock" className="h-3.5 w-3.5" />
+                            {timeAgo(e.createdAt)}
+                          </span>
+                          {e.status === "SUBMITTED" && (
+                            <button
+                              onClick={() => handleWithdraw(e.id)}
+                              disabled={busyId === e.id}
+                              className="btn btn-ghost px-3! py-1.5! text-xs text-accent-red hover:text-accent-red!"
+                            >
+                              {busyId === e.id ? <Spinner className="h-3.5 w-3.5" /> : "Withdraw"}
+                            </button>
+                          )}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Opportunities board (business claims these) */}
+            <div className="mt-14">
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <p className="kicker">Endorsement opportunities</p>
+                  <h2 className="font-display mt-2 text-3xl">What admins are seeking</h2>
+                </div>
+                <span className="badge bg-accent-green-soft text-accent-green">{openCount} open</span>
+              </div>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-ink-soft">
+                Admins publish opportunities for coverage in specific areas. Businesses claim these —
+                helpers stay in the loop on what the network is building toward.
+              </p>
+
+              {opportunities.length === 0 ? (
+                <div className="mt-6">
+                  <EmptyState
+                    icon="star"
+                    title="No opportunities right now"
+                    message="When an admin publishes an endorsement opportunity it will show up here."
+                  />
+                </div>
+              ) : (
+                <div className="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                  {opportunities.map((o) => (
+                    <article key={o.id} className="card flex h-full flex-col p-6">
+                      <div className="flex items-start justify-between gap-3">
+                        <span className="chip">{o.category}</span>
+                        <span className="badge bg-canvas-alt text-ink-soft">
+                          {o.status}
+                        </span>
+                      </div>
+                      <h3 className="font-display mt-4 text-2xl leading-tight">{o.title}</h3>
+                      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-ink-soft">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Icon name="pin" className="h-3.5 w-3.5 text-ink-faint" />
+                          {formatLocation(o.location)}
+                        </span>
+                        {o.expiresAt && (
+                          <span className="inline-flex items-center gap-1.5">
+                            <Icon name="clock" className="h-3.5 w-3.5 text-ink-faint" />
+                            Ends {timeAgo(o.expiresAt)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-4 text-sm leading-6 text-ink-soft">{o.description}</p>
+                      <div className="mt-auto pt-5">
+                        <span className="inline-flex items-center gap-1.5 text-xs text-ink-faint">
+                          <Icon name="users" className="h-3.5 w-3.5" />
+                          Claimed by businesses via the normal endorsement pipeline
+                        </span>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
         )}
       </section>
     </AppShell>

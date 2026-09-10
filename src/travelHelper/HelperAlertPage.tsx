@@ -40,9 +40,9 @@ export default function HelperAlertPage() {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL ?? ""}/api/helpers/alert`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("saveitrip_token")}`,
         },
         body: JSON.stringify({
           title,
@@ -74,7 +74,7 @@ export default function HelperAlertPage() {
 
   if (success) {
     return (
-      <AppShell helperMode>
+      <AppShell>
         <div className="flex min-h-[50vh] items-center justify-center px-6">
         <div className="bg-surface-high rounded-xl p-8 max-w-md w-full text-center">
           <Icon name="check-circle" className="h-12 w-12 text-accent-green mx-auto mb-4" />
@@ -90,7 +90,7 @@ export default function HelperAlertPage() {
   }
 
   return (
-    <AppShell helperMode>
+    <AppShell>
       <div className="mx-auto w-full max-w-2xl">
       <div className="max-w-md mx-auto bg-surface-high rounded-xl p-8">
         <h2 className="font-display text-2xl leading-tight mb-6">Raise Calamity Alert</h2>

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AppShell from "../shared/AppShell";
 import { useAuth } from "../auth/AuthContext";
 import { Icon } from "../shared/Icon";
-import { Avatar, Spinner } from "../shared/ui";
+import { Avatar, Skeleton } from "../shared/ui";
 import { listHelpers, searchHelpers, type TravelHelper } from "./travelHelperApi";
 
 const REGIONS = ["All", "Sikkim", "Kerala", "Rajasthan", "Ladakh", "Darjeeling", "Goa"];
@@ -83,6 +83,32 @@ function HelperCard({ helper }: { helper: TravelHelper }) {
   );
 }
 
+function HelperCardSkeleton() {
+  return (
+    <article className="card flex flex-col overflow-hidden p-0" aria-label="Loading travel helper">
+      <Skeleton className="h-44 w-full rounded-none" />
+      <div className="flex flex-1 flex-col p-4">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-3 w-3 rounded-full" />
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="ml-auto h-3 w-12" />
+        </div>
+        <Skeleton className="mt-3 h-3 w-full" />
+        <Skeleton className="mt-2 h-3 w-4/5" />
+        <div className="mt-3 flex gap-1">
+          <Skeleton className="h-6 w-16 rounded-full" />
+          <Skeleton className="h-6 w-20 rounded-full" />
+          <Skeleton className="h-6 w-14 rounded-full" />
+        </div>
+        <div className="mt-auto flex items-center justify-between border-t border-line/60 pt-3">
+          <Skeleton className="h-3 w-20" />
+          <Skeleton className="h-8 w-24 rounded-full" />
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export default function TravelHelperPage() {
   const { user, loading: authLoading } = useAuth();
   const [helpers, setHelpers] = useState<TravelHelper[]>([]);
@@ -134,9 +160,10 @@ export default function TravelHelperPage() {
 
         <div className="mt-8">
           {loading ? (
-            <div className="flex items-center justify-center gap-2 py-16 text-ink-faint">
-              <Spinner className="h-4 w-4" />
-              <span className="text-sm">Loading helpers...</span>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-live="polite" aria-busy="true">
+              {Array.from({ length: 6 }, (_, index) => (
+                <HelperCardSkeleton key={index} />
+              ))}
             </div>
           ) : helpers.length === 0 ? (
             <div className="py-16 text-center">

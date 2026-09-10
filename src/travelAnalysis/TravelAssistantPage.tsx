@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   listConversations,
   getConversation,
@@ -16,6 +17,30 @@ const SUGGESTED_PROMPTS = [
   { label: "Compare stays", icon: "scale" as const, text: "Find accommodation in Kerala" },
   { label: "Destination info", icon: "compass" as const, text: "Tell me about Ladakh" },
 ];
+
+const PLANNING_ATTEMPTS_KEY = "saveitrip_planning_attempts";
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+function isTripPlanningRequest(text: string): boolean {
+  return /\b(plan|planning|itinerary|trip)\b/i.test(text) &&
+    /\b(trip|itinerary|days?|destination|travel|budget)\b/i.test(text);
+}
+
+function recordPlanningAttempt(): boolean {
+  const now = Date.now();
+  let storedAttempts: unknown = [];
+  try {
+    storedAttempts = JSON.parse(localStorage.getItem(PLANNING_ATTEMPTS_KEY) ?? "[]");
+  } catch {
+    storedAttempts = [];
+  }
+  const recentAttempts = Array.isArray(storedAttempts)
+    ? storedAttempts.filter((timestamp): timestamp is number => typeof timestamp === "number" && now - timestamp < WEEK_MS)
+    : [];
+  const isOverLimit = recentAttempts.length >= 1;
+  localStorage.setItem(PLANNING_ATTEMPTS_KEY, JSON.stringify([...recentAttempts, now]));
+  return isOverLimit;
+}
 
 function renderMarkdown(text: string): string {
   let html = text;
@@ -219,11 +244,13 @@ function WelcomeScreen({ onPrompt }: { onPrompt: (text: string) => void }) {
 }
 
 export default function TravelAssistantPage() {
+  const navigate = useNavigate();
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const [, setInitialLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -279,6 +306,12 @@ export default function TravelAssistantPage() {
   const handleSend = useCallback(async (text?: string) => {
     const content = (text ?? input).trim();
     if (!content || loading) return;
+
+    if (isTripPlanningRequest(content) && recordPlanningAttempt()) {
+      setInput("");
+      setShowUpgradePrompt(true);
+      return;
+    }
 
     setInput("");
     setLoading(true);
@@ -420,6 +453,26 @@ export default function TravelAssistantPage() {
                 </div>
               )}
               <div ref={messagesEndRef} />
+            </div>
+          </div>
+        )}
+
+        {showUpgradePrompt && (
+          <div className="border-t border-accent-green/25 bg-accent-green-soft px-6 py-4">
+            <div className="mx-auto flex max-w-2xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent-green text-canvas">
+                  <Icon name="sparkles" className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-ink">You have already planned a trip this week.</p>
+                  <p className="mt-0.5 text-xs leading-5 text-ink-soft">Unlock more trip planning and assistant usage with a SaveiTrip plan.</p>
+                </div>
+              </div>
+              <button onClick={() => navigate("/payments")} className="btn btn-primary shrink-0 text-xs">
+                View plans
+                <Icon name="arrow-right" className="h-3.5 w-3.5" />
+              </button>
             </div>
           </div>
         )}

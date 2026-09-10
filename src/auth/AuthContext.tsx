@@ -1,12 +1,15 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { clearSession, fetchMe, getStoredToken, getStoredUser, saveSession, type User } from "./authApi";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { clearSession, fetchMe, getStoredUser, saveSession, type User } from "./authApi";
 
 type AuthContextValue = {
   user: User | null;
   token: string | null;
   isHelper: boolean;
+  isBusiness: boolean;
+  isAdmin: boolean;
+  role: string;
   loading: boolean;
-  setSession: (session: { token: string; user: User }, accountType?: "traveler" | "helper") => void;
+  setSession: (session: { user: User; token?: string }, accountType?: "traveler" | "helper") => void;
   updateUser: (user: User) => void;
   signOut: () => void;
 };
@@ -16,58 +19,69 @@ const ACCOUNT_TYPE_KEY = "saveitrip_account_type";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => getStoredUser());
-  const [token, setToken] = useState<string | null>(() => getStoredToken());
+  const [token, setToken] = useState<string | null>(null);
   const [isHelper, setIsHelper] = useState(
     () => localStorage.getItem(ACCOUNT_TYPE_KEY) === "helper" || window.location.pathname.startsWith("/helper/")
   );
-  const [loading, setLoading] = useState(Boolean(getStoredToken()));
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+    fetchMe()
+      .then((session) => {
+        if (!session) {
+          clearSession();
+          setUser(null);
+          setLoading(false);
+          return;
+        }
 
-    fetchMe(token)
-      .then(({ user }) => {
+        const { user } = session;
         setUser(user);
-        saveSession({ token, user });
+        saveSession({ user });
+        setLoading(false);
       })
       .catch(() => {
         clearSession();
-        setToken(null);
         setUser(null);
-      })
-      .finally(() => setLoading(false));
-  }, [token]);
+        setLoading(false);
+      });
+  }, []);
+
+  const setSession = useCallback((session: { user: User; token?: string }, accountType: "traveler" | "helper" = "traveler") => {
+    saveSession(session);
+    setToken(session.token ?? null);
+    setUser(session.user);
+    setIsHelper(accountType === "helper");
+    localStorage.setItem(ACCOUNT_TYPE_KEY, accountType);
+  }, []);
+
+  const updateUser = useCallback((nextUser: User) => {
+    setUser(nextUser);
+    saveSession({ user: nextUser });
+  }, []);
+
+  const signOut = useCallback(() => {
+    clearSession();
+    setToken(null);
+    setUser(null);
+    setIsHelper(false);
+    localStorage.removeItem(ACCOUNT_TYPE_KEY);
+  }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
       token,
       isHelper,
+      isBusiness: user?.role === "business",
+      isAdmin: user?.role === "admin",
+      role: user?.role ?? "traveler",
       loading,
-      setSession: (session, accountType = "traveler") => {
-        saveSession(session);
-        setToken(session.token);
-        setUser(session.user);
-        setIsHelper(accountType === "helper");
-        localStorage.setItem(ACCOUNT_TYPE_KEY, accountType);
-      },
-      updateUser: (nextUser) => {
-        setUser(nextUser);
-        const storedToken = getStoredToken();
-        if (storedToken) saveSession({ token: storedToken, user: nextUser });
-      },
-      signOut: () => {
-        clearSession();
-        setToken(null);
-        setUser(null);
-        setIsHelper(false);
-        localStorage.removeItem(ACCOUNT_TYPE_KEY);
-      }
+      setSession,
+      updateUser,
+      signOut
     }),
-    [isHelper, loading, token, user]
+    [isHelper, loading, setSession, signOut, token, updateUser, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

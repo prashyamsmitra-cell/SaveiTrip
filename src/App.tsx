@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
+import { useAuth } from "./auth/AuthContext";
 import GoogleCallbackPage from "./auth/GoogleCallbackPage";
 import LoginPage from "./auth/LoginPage";
 import ProtectedRoute from "./auth/ProtectedRoute";
@@ -21,7 +22,15 @@ import HelperProfilePage from "./travelHelper/HelperProfilePage";
 import HelperAlertPage from "./travelHelper/HelperAlertPage";
 import AuthChoicePage from "./auth/AuthChoicePage";
 import BusinessPromotionPage from "./business/BusinessPromotionPage";
+import BusinessLoginPage from "./business/BusinessLoginPage";
+import BusinessProfilePage from "./business/BusinessProfilePage";
+import BusinessInquiryNewPage from "./business/BusinessInquiryNewPage";
+import BusinessInquiryDetailPage from "./business/BusinessInquiryDetailPage";
+import AdminEndorsementConsolePage from "./business/AdminEndorsementConsolePage";
+import AdminInquiryDetailPage from "./business/AdminInquiryDetailPage";
 import HelperEndorsementDashboardPage from "./business/HelperEndorsementDashboardPage";
+import RoleGuard from "./auth/RoleGuard";
+import PaymentsPage from "./payments/PaymentsPage";
 import AppShell from "./shared/AppShell";
 import { Brand } from "./shared/ui";
 import { Icon } from "./shared/Icon";
@@ -55,13 +64,27 @@ function ScrollToTop() {
   return null;
 }
 
+function HomeRoute() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-canvas">
+        <Brand className="text-xl" />
+      </div>
+    );
+  }
+
+  return user ? <Navigate to="/dashboard" replace /> : <LandingPage />;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <ScrollToTop />
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<HomeRoute />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/choose-login" element={<AuthChoicePage mode="login" />} />
@@ -80,8 +103,15 @@ export default function App() {
           <Route path="/comparison" element={<ProtectedRoute><ComparisonPage /></ProtectedRoute>} />
           <Route path="/sos" element={<ProtectedRoute><SosPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-          <Route path="/business/promote" element={<BusinessPromotionPage />} />
-          <Route path="/helper/endorsements" element={<ProtectedRoute><HelperEndorsementDashboardPage /></ProtectedRoute>} />
+          <Route path="/payments" element={<ProtectedRoute><PaymentsPage /></ProtectedRoute>} />
+          <Route path="/business/login" element={<BusinessLoginPage />} />
+          <Route path="/business/promote" element={<RoleGuard roles={["business"]}><BusinessPromotionPage /></RoleGuard>} />
+          <Route path="/business/profile" element={<RoleGuard roles={["business"]}><BusinessProfilePage /></RoleGuard>} />
+          <Route path="/business/inquiry/new" element={<RoleGuard roles={["business"]}><BusinessInquiryNewPage /></RoleGuard>} />
+          <Route path="/business/inquiry/:inquiryId" element={<RoleGuard roles={["business"]}><BusinessInquiryDetailPage /></RoleGuard>} />
+          <Route path="/helper/endorsements" element={<RoleGuard roles={["helper"]}><HelperEndorsementDashboardPage /></RoleGuard>} />
+          <Route path="/admin/endorsements" element={<RoleGuard roles={["admin"]}><AdminEndorsementConsolePage /></RoleGuard>} />
+          <Route path="/admin/inquiries/:inquiryId" element={<RoleGuard roles={["admin"]}><AdminInquiryDetailPage /></RoleGuard>} />
           <Route path="/services" element={<Navigate to="/dashboard" replace />} />
           <Route path="/trips/new" element={<Navigate to="/assistant" replace />} />
           <Route path="/prediction" element={<Navigate to="/assistant" replace />} />

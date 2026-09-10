@@ -1,5 +1,7 @@
 export type AuthProvider = "email" | "google";
 
+export type UserRole = "traveler" | "helper" | "business" | "admin";
+
 export type User = {
   id: string;
   name: string;
@@ -10,22 +12,23 @@ export type User = {
   bio: string | null;
   username: string | null;
   avatarUrl: string | null;
+  role?: UserRole;
   createdAt: string;
   updatedAt: string;
 };
 
 type AuthResponse = {
-  token: string;
   user: User;
+  token?: string;
 };
 
 const API_URL = import.meta.env.VITE_API_URL ?? "";
-const TOKEN_KEY = "saveitrip_token";
 const USER_KEY = "saveitrip_user";
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...options.headers
@@ -41,18 +44,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export function saveSession(session: AuthResponse) {
-  localStorage.setItem(TOKEN_KEY, session.token);
+export function saveSession(session: { user: User; token?: string }) {
   localStorage.setItem(USER_KEY, JSON.stringify(session.user));
 }
 
 export function clearSession() {
-  localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
-}
-
-export function getStoredToken() {
-  return localStorage.getItem(TOKEN_KEY);
 }
 
 export function getStoredUser(): User | null {
@@ -81,10 +78,8 @@ export async function updateProfile(input: {
   username?: string;
   avatarUrl?: string;
 }) {
-  const token = getStoredToken();
   return request<{ user: User }>('/api/auth/me', {
     method: 'PATCH',
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: JSON.stringify(input)
   });
 }
@@ -109,10 +104,16 @@ export async function loginAsDemo() {
   });
 }
 
-export async function fetchMe(token: string) {
-  return request<{ user: User }>("/api/auth/me", {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+export async function fetchMe(): Promise<{ user: User } | null> {
+  try {
+    return await request<{ user: User }>('/api/auth/me');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (/401|Unauthorized|Missing authentication session|Invalid or expired session/i.test(message)) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function logout() {
